@@ -1,6 +1,6 @@
 #	overload2
 
-__Elegant solution for function overload in JavaScript.__
+__Elegant solution for function overloading in JavaScript.__
 
 [![NPM](https://nodei.co/npm/overload2.png?downloads=true&downloadRank=true&stars=true)](https://www.npmjs.com/package/overload2)
 
@@ -160,23 +160,23 @@ Here is an [example](./example/advanced.js) for advanced mode.
 
 ``overload2`` itself is a function, when invoked, it will return an overloded function instance.
 
-*	\<fn\> __overload2( [ \<datatype\>, ... ] function \<implementation\> )__  
+*	\<fn\> __overload2__( [ \<datatype\>, ... ] function \<implementation\> )  
 	Create a new overloaded function.
 
-*	\<fn\> __\<fn\>.overload( [ \<datatype\>, ... ] function \<implementation\> )__  
+*	\<fn\> __\<fn\>.overload__( [ \<datatype\>, ... ] function \<implementation\> )  
 	Append an overloading implementation to existing overloaded function.
 
-*	\<fn\> __\<fn\>.default( function \<implementation\> )__  
+*	\<fn\> __\<fn\>.default__( function \<implementation\> )  
 	Set default implementation function for existing overloaded function.
 
 ###	overload2.Type
 
 To define a datatype in context of *overload2*, there are different ways including ``overload2.Type``. And all other datatypes will be converted to instances of ``overload2.Type`` before being used.
 
-*	__new overload2.Type( function | RegExp \<matcher\> )__  
+*	new __overload2.Type__( function | RegExp \<matcher\> )  
 	Here ``matcher`` may be a function or RegExp object.
 
-*	*private* boolean __\<type\>.match( \<value\> )__  
+*	*private* boolean __\<type\>.match__( \<value\> )  
 	Return ``true`` if value matches the datatype, otherwise return ``false``.
 
 ###	overload2.Param
@@ -188,58 +188,58 @@ A Param is made up of  a Type and some decorators. Available decorators are:
 | null         | If argument equals null, it matches the parameter. |
 | undefined    | If argument equals undefined (the place should be occupied), it matches the parameter. |
 
-*	__new overload2.Param( string "\<alias\> \<decorator\> ..." )__  
+*	new __overload2.Param__( string "\<alias\> \<decorator\> ..." )  
 	The ``alias`` should be one of alias listed in table [Datatype Alias](#datatype-alias).  
 
-*	__new overload2.Param( Type | function | string \<datatype\>, string \<decorator(s)\> [ , string \<decorator(s)\> ] )__  
+*	new __overload2.Param__( Type | function | string \<datatype\>, string \<decorator(s)\> [ , string \<decorator(s)\> ] )  
 	Here ``datatype`` may be instance of ``Type``, or construtor function, or datatype alias.
 
-* 	*private* boolean __\<param\>.satisfy( \<value\> )__  
+* 	*private* boolean __\<param\>.satisfy__( \<value\> )  
 	To judge if the argument value satisfy the parameter.
 
-* 	\<Param\> __overload2.Param.parse( ? )__  
+* 	\<Param\> __overload2.Param.parse__( ? )  
 	Arguments suitable for ``new Param()`` are also suitable for the ``Param.parse()``.
 
 ###	overload2.ParamList
 
-*	__new overload2.ParamList( [ Param | Array | String \<param\> [ , ... ]  ] )__  
+*	new __overload2.ParamList__( [ Param | Array | String \<param\> [ , ... ]  ] )  
 	Here ``param`` may be an instance of ``Param``, or a string or an array which may used as argument(s) for ``new Param()``.
 
-* 	*private* boolean __\<paramList\>.satisfy( Array | Arguments \<args\> )__  
+* 	*private* boolean __\<paramList\>.satisfy__( Array | Arguments \<args\> )  
 	To check arguments with parameters, return ``true`` if matched or ``false`` if not.
 
-* 	\<ParamList\> __overload2.ParamList.parse( ? )__  
+* 	\<ParamList\> __overload2.ParamList.parse__( ? )  
 	Arguments suitable for ``new ParamList()`` are also suitable for the ``ParamList.parse()``.
-	
+
 ###	overload2.Overload
 
-*	__new overload2.Overload( number <argumentsNumber>, function \<implementation\> )__  
+*	new __overload2.Overload__( number <argumentsNumber>, function \<implementation\> )  
 
-*	__new overload2.Overload( ParamList, function \<implementation\> )__  
+*	new __overload2.Overload__( ParamList, function \<implementation\> )  
 
-*	__new overload2.Overload( [ \<param\>, [ ..., ] ] function \<implementation\> )__
+*	new __overload2.Overload__( [ \<param\>, [ ..., ] ] function \<implementation\> )
 
-*	\<Overload\> __overload2.Overload.parse( ? )__  
+*	\<Overload\> __overload2.Overload.parse__( ? )  
 	Arguments suitable for ``new Overload()`` are also suitable for the ``Overload.parse()``.
 
 ###	overload2.OverloadedFunction
 
-*	__new overload2.OverloadedFunction()__  
+*	new __overload2.OverloadedFunction__()  
 	The instance of ``OverloadedFunction`` is a wrapper, not a function itself.
 
-*	__\<wrapper\>.exec( ... )__  
+*	__\<wrapper\>.exec__( ... )  
 	Run the overloaded function.
 
-*	__\<wrapper\>.apply( \<scope\>, Array | Arguments \<args\> )__   
+*	__\<wrapper\>.apply__( \<scope\>, Array | Arguments \<args\> )   
 	Run the overloaded function under specified scope, passing arguments as an array or Arguments instance.
 
-*	__\<wrapper\>.call( \<scope\> [ , \<arg\> [ , ... ] ] )__  
+*	__\<wrapper\>.call__( \<scope\> [ , \<arg\> [ , ... ] ] )  
 	Run the overloaded function under specified scope, passing arguments one by one.
 
-* 	__\<wrapper\>.overload( Overload \<overloadInstance\> )__  
+* 	__\<wrapper\>.overload__( Overload \<overloadInstance\> )  
 	Append an overloading implementation.
 
-*  	__\<wrapper\>.overload( ? )__  
+*  	__\<wrapper\>.overload__( ? )  
 	Append an overloading implementation, arguments suitable for ``new Overload()`` are also suitable for the ``<wrapper>.overload()``.
 
 ##	Examples
