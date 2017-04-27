@@ -120,7 +120,7 @@ function Type(/* function | RegExp */ matcher) {
 /**
  * 参数类。
  * 构造函数支持重载，可能的参数形式包括：
- *   "alias decorator ..."
+ *   "alias ...decorator"
  *   type, ...decorator
  *   type, decorators
  * 其中 type 可以是 Type 对象、普通的构造函数或者类型别名，decorators 则代表由多个修饰符组成的字符串，以空格分隔。
@@ -459,14 +459,6 @@ Overloader.CHAR = new Type(function(value) {
 	return typeof value == 'string' && value.length == 1;
 });
 
-Overloader.DEFINED = new Type(function(value) {
-	return typeof value != 'undefined';
-});
-
-Overloader.FUNCTION = new Type(function(value) {
-	return typeof value == 'function';
-});
-
 Overloader.NUMBER = new Type(function(value) {
 	return typeof value == 'number';
 });
@@ -531,8 +523,6 @@ var TYPE_ALIAS = {
 	, 'any'      : Overloader.ANY
 	, 'boolean'  : Overloader.BOOLEAN
 	, 'char'     : Overloader.CHAR
-	, 'defined'  : Overloader.DEFINED
-	, 'function' : Overloader.FUNCTION
 	, 'number'   : Overloader.NUMBER
 	, 'scalar'   : Overloader.SCALAR
 	, 'string'   : Overloader.STRING

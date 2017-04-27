@@ -19,8 +19,8 @@ On programming with strongly-typed language, such as C++ and Java, [function ove
 
 See [CHANGE LOG](./CHANGELOG.md) for notable changes. Or access project's [homepage](./readme.md) for latest updates.
 
-<a name="get-started"></a>
 ##	Get Started
+<a name="get-started"></a>
 
 Install *overload2* firstly.
 
@@ -69,8 +69,8 @@ getDay(1, 2, 3, 4);
 // four() invoked
 ```
 
-<a name="datatypes"></a>
 ##	Datatypes
+<a name="datatypes"></a>
 
 According to *overload2* , there are different ways to define a datatype.
 
@@ -133,8 +133,8 @@ ATTENTION: Datatype aliases are __CaseSensitive__.
 *	__overload2.enum(item[, ...])__  
 	Return Datatype instance
 
-<a name="move-forward"></a>
 ##	Move Forward
+<a name="move-forward"></a>
 
 Beyond the basic use, *overload2* is also suitable with more complex and large-scale programs. See the class hierarchy shown below:  
 ![overload2 hierarchy](./docs/overload2.png)
@@ -153,8 +153,8 @@ Instances of ``Type``, ``Param``, ``ParamList`` and ``Overload`` are able to be 
 
 Here is an [example](./example/advanced.js) for advanced mode.
 
-<a name="apis"></a>
 ##	APIs
+<a name="apis"></a>
 
 ###	Overloaded Function Instance
 
@@ -242,8 +242,8 @@ A Param is made up of  a Type and some decorators. Available decorators are:
 *  	__\<wrapper\>.overload( ? )__  
 	Append an overloading implementation, arguments suitable for ``new Overload()`` are also suitable for the ``<wrapper>.overload()``.
 
-<a name="examples"></a>
 ##	Examples
+<a name="examples"></a>
 
 *	[Basic Usage](./example/basic.js)   
 	To create overloaded function in simple way.
@@ -257,7 +257,7 @@ A Param is made up of  a Type and some decorators. Available decorators are:
 *	[Advanced Usage](./example/advanced.js)  
 	Use *overload2* in complex situations.
 
-<a name="why-overload2"></a>
 ##	Why overload2
+<a name="why-overload2"></a>
 
 To be continued.
