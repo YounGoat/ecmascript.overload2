@@ -1,6 +1,6 @@
 {
     "name": "overload2",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "Elegant solution for function overloading in JavaScript",
     "main": "overload2.js",
     "directories": {
@@ -16,13 +16,14 @@
     },
     "keywords": [
         "overload",
-        "overloading",
+        "function-overloading",
+        "constructor-overloading",
         "strongly-typed"
     ],
     "author": "youngoat@163.com",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/YounGoat/javascript.overload2/issues"
+        "url": "https://github.com/YounGoat/ecmascript.overload2/issues"
     },
-    "homepage": "https://github.com/YounGoat/javascript.overload2#readme"
+    "homepage": "https://github.com/YounGoat/ecmascript.overload2#readme"
 }

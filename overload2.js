@@ -421,7 +421,7 @@ function Overloader() {
 	};
 
 	if (arguments.length) {
-		append(arguments);
+		// append(arguments);
 	}
 
 	var fn = function() {

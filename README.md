@@ -6,18 +6,18 @@ __Elegant solution for function overloading in JavaScript.__
 
 Tied with writing tasteless code to do with arguments? Use *overload2* to make things easy.
 
-On programming with strongly-typed language, such as C++ and Java, [function overloading](https://en.wikipedia.org/wiki/Function_overloading) is frequently employed to make API more convenient to be used. As a weakly-typed language, JavaScript does not support function overloading. At the same time, fortunately, functions in JavaScript may be passed with any arguments that is why  *overload2* is feasible.
+On programming with strongly-typed languages such as C++ and Java, [function overloading](https://en.wikipedia.org/wiki/Function_overloading) is frequently employed to make API more convenient to be used. As a weakly-typed language, JavaScript does not support function overloading. At the same time, fortunately, functions in JavaScript may be passed with any arguments that is why  *overload2* is feasible.
 
 ##	Table of contents
 
-*	[Get Start](#get-started)
+*	[Get Started](#get-started)
 *	[Datatypes](#datatypes)
 *	[Move Forward](#move-forward)
 *	[APIs](#apis)
 * 	[Examples](#examples)
 *	[Why overload2](#why-overload2)
 
-See [CHANGE LOG](./CHANGELOG.md) for notable changes. Or access project's [homepage](./readme.md) for latest updates.
+See [CHANGE LOG](./CHANGELOG.md) for notable changes. Or access project's [homepage](./README.md) for latest updates.
 
 ##	Get Started
 <a name="get-started"></a>
@@ -160,8 +160,8 @@ Here is an [example](./example/advanced.js) for advanced mode.
 
 ``overload2`` itself is a function, when invoked, it will return an overloded function instance.
 
-*	\<fn\> __overload2__( [ \<datatype\>, ... ] function \<implementation\> )  
-	Create a new overloaded function.
+*	\<fn\> __overload2__()  
+	Create a new overloaded function. The function has no implementations before ``.overload()`` called.
 
 *	\<fn\> __\<fn\>.overload__( [ \<datatype\>, ... ] function \<implementation\> )  
 	Append an overloading implementation to existing overloaded function.
@@ -197,7 +197,7 @@ A Param is made up of  a Type and some decorators. Available decorators are:
 * 	*private* boolean __\<param\>.satisfy__( \<value\> )  
 	To judge if the argument value satisfy the parameter.
 
-* 	\<Param\> __overload2.Param.parse__( ? )  
+* 	Param __overload2.Param.parse__( ? )  
 	Arguments suitable for ``new Param()`` are also suitable for the ``Param.parse()``.
 
 ###	overload2.ParamList
@@ -208,7 +208,7 @@ A Param is made up of  a Type and some decorators. Available decorators are:
 * 	*private* boolean __\<paramList\>.satisfy__( Array | Arguments \<args\> )  
 	To check arguments with parameters, return ``true`` if matched or ``false`` if not.
 
-* 	\<ParamList\> __overload2.ParamList.parse__( ? )  
+* 	ParamList __overload2.ParamList.parse__( ? )  
 	Arguments suitable for ``new ParamList()`` are also suitable for the ``ParamList.parse()``.
 
 ###	overload2.Overload
@@ -219,7 +219,7 @@ A Param is made up of  a Type and some decorators. Available decorators are:
 
 *	new __overload2.Overload__( [ \<param\>, [ ..., ] ] function \<implementation\> )
 
-*	\<Overload\> __overload2.Overload.parse__( ? )  
+*	Overload __overload2.Overload.parse__( ? )  
 	Arguments suitable for ``new Overload()`` are also suitable for the ``Overload.parse()``.
 
 ###	overload2.OverloadedFunction
