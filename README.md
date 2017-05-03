@@ -21,8 +21,12 @@ On programming with strongly-typed languages such as C++ and Java, [function ove
 *	[APIs](#apis)
 * 	[Examples](#examples)
 *	[Why overload2](#why-overload2)
+*	[References](#references)
 
-See [CHANGE LOG](./CHANGELOG.md) for notable changes. Or access project's [homepage](./README.md) for latest updates.
+##	Links
+
+*	[CHANGE LOG](./CHANGELOG.md)
+*	[Homepage](https://github.com/YounGoat/ecmascript.overload2)
 
 ##	Get Started
 <a name="get-started"></a>
@@ -291,7 +295,7 @@ There have been dozens of packages devoted to function overloading in JavaScript
 
 So, is *overload2* redundant? I donnot know. Each of previous is unsatisfactory more or less, of course *overload2* is not perfect either. Maybe future ECMAScript specification will support function overloading. However, until then, I will depend on *overload2* while coding in JavaScript.
 
-##	REFERENCE
+##	References
 
 *	MSDN: [Overloading and Signatures](https://msdn.microsoft.com/en-us/library/aa711868.aspx)
 *	MSDN: [Signatures and overloading](https://msdn.microsoft.com/en-us/library/aa691131.aspx)

@@ -1,29 +1,29 @@
 {
-	"name": "overload2",
-	"version": "0.0.3",
-	"description": "Elegant solution for function overloading in JavaScript",
-	"main": "overload2.js",
-	"directories": {
-		"test": "test"
-	},
-	"scripts": {
-		"prepublish": "mkdir -p dist && cp overload2.js dist && cd dist && uglifyjs --mangle --output overload2.min.js --source-map overload2.map overload2.js",
-		"test": "mocha"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/YounGoat/ecmascript.overload2.git"
-	},
-	"keywords": [
-		"overload",
-		"function-overloading",
-		"constructor-overloading",
-		"strongly-typed"
-	],
-	"author": "youngoat@163.com",
-	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/YounGoat/ecmascript.overload2/issues"
-	},
-	"homepage": "https://github.com/YounGoat/ecmascript.overload2#readme"
+    "name": "overload2",
+    "version": "0.0.4",
+    "description": "Elegant solution for function overloading in JavaScript",
+    "main": "overload2.js",
+    "directories": {
+        "test": "test"
+    },
+    "scripts": {
+        "prepublish": "mkdir -p dist && cp overload2.js dist && cd dist && uglifyjs --mangle --output overload2.min.js --source-map overload2.map overload2.js",
+        "test": "mocha"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/YounGoat/ecmascript.overload2.git"
+    },
+    "keywords": [
+        "overload",
+        "function-overloading",
+        "constructor-overloading",
+        "strongly-typed"
+    ],
+    "author": "youngoat@163.com",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/YounGoat/ecmascript.overload2/issues"
+    },
+    "homepage": "https://github.com/YounGoat/ecmascript.overload2#readme"
 }
