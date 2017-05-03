@@ -2,9 +2,14 @@
 
 __Elegant solution for function overloading in JavaScript.__
 
+![NPM total downloads](https://img.shields.io/npm/dt/overload2.svg)
+![NPM version](https://img.shields.io/npm/v/overload2.svg)
+![NPM license](https://img.shields.io/npm/l/overload2.svg)
+![GitHub stars](https://img.shields.io/github/stars/YounGoat/ecmascript.overload2.svg?style=social&label=Star)
+
 [![NPM](https://nodei.co/npm/overload2.png?downloads=true&downloadRank=true&stars=true)](https://www.npmjs.com/package/overload2)
 
-Tied with writing tasteless code to do with arguments? Use *overload2* to make things easy.
+When you are tired with writing tasteless code to do with arguments, *overload2* will __MAKE THINGS EASY__.
 
 On programming with strongly-typed languages such as C++ and Java, [function overloading](https://en.wikipedia.org/wiki/Function_overloading) is frequently employed to make API more convenient to be used. As a weakly-typed language, JavaScript does not support function overloading. At the same time, fortunately, functions in JavaScript may be passed with any arguments that is why  *overload2* is feasible.
 
@@ -25,7 +30,8 @@ See [CHANGE LOG](./CHANGELOG.md) for notable changes. Or access project's [homep
 Install *overload2* firstly.
 
 ```bash
-npm install -g overload2
+# Install overload2 and save as a dependency of current package.
+npm install overload2 --save
 ```
 
 Open node and run next code:
@@ -76,7 +82,7 @@ According to *overload2* , there are different ways to define a datatype.
 
 ###	Constructor Function
 
-*overload2* can match any instance with its constructor function, e.g
+*overload2* can match any instance with its constructor function, e.g. ``[0,1]`` is matched with ``Array``. See another example:
 
 ```javascript
 var getDay = overlaod2()
@@ -88,17 +94,26 @@ getDay(new Date);  // foo() invoked
 getDay(new String('2000-1-1'));  // bar() invoked
 ```
 
-for example ``[0,1]`` is matched with ``Array``.
-
 ###	Customized Datatype
 
-You may create customized datatypes by ``new overload2.Datatype(fn)``, e.g.m
+You may create customized datatypes by ``new overload2.Type(fn)``, e.g.
 
 ```javascript
-var DAYNAME = new overload2.Type(function(value) {
-	var names = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+// Create a Type object.
+var MonthName = new overload2.Type(function(value) {
+	var names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 	return names.indexOf(value) >= 0;
 });
+
+// Customized type may be used on overloading.
+var getDay = overlaod2()
+	.overload(Date, function foo(d) { return d.getDay(); })
+	.overload('number', MonthName, 'number', function() {
+		return new Date(year, month - 1, date).getDay();
+	})
+	;
+
+getDay(2000, 'Jan', 1);
 ```
 
 ###	Predefined Datatype
@@ -131,7 +146,7 @@ ATTENTION: Datatype aliases are __CaseSensitive__.
 *overload2* offers some factory methods to create frequently used datatypes, e.g. enum.
 
 *	__overload2.enum(item[, ...])__  
-	Return Datatype instance
+	Return an enumeration type.
 
 ##	Move Forward
 <a name="move-forward"></a>
@@ -214,10 +229,16 @@ A Param is made up of  a Type and some decorators. Available decorators are:
 ###	overload2.Overload
 
 *	new __overload2.Overload__( number <argumentsNumber>, function \<implementation\> )  
+	Create an ``Overload`` instance by restricting the number of arguments.
 
 *	new __overload2.Overload__( ParamList, function \<implementation\> )  
+	Create an ``Overload`` instance bound to specified ``ParamList``.
 
-*	new __overload2.Overload__( [ \<param\>, [ ..., ] ] function \<implementation\> )
+*	new __overload2.Overload__( \<param\> [ , ... ] , function \<implementation\> )  
+	Create an ``Overload`` instance with optional definitions of ``Param``.
+
+*	new __overload2.Overload__(function \<implementation\> )  
+	Create an ``Overload`` instance which will be invoked while arguments length equals 0.
 
 *	Overload __overload2.Overload.parse__( ? )  
 	Arguments suitable for ``new Overload()`` are also suitable for the ``Overload.parse()``.
@@ -260,4 +281,18 @@ A Param is made up of  a Type and some decorators. Available decorators are:
 ##	Why overload2
 <a name="why-overload2"></a>
 
-To be continued.
+There have been dozens of packages devoted to function overloading in JavaScript, and some of them are really not bad, e.g.
+
+*	[overloadable](https://www.npmjs.com/package/overloadable)
+*	[polymorphic](https://www.npmjs.com/package/polymorphic)
+*	[overload-js](https://www.npmjs.com/package/overload-js)
+*	[variadic](https://www.npmjs.com/package/variadic.js)
+*	...
+
+So, is *overload2* redundant? I donnot know. Each of previous is unsatisfactory more or less, of course *overload2* is not perfect either. Maybe future ECMAScript specification will support function overloading. However, until then, I will depend on *overload2* while coding in JavaScript.
+
+##	REFERENCE
+
+*	MSDN: [Overloading and Signatures](https://msdn.microsoft.com/en-us/library/aa711868.aspx)
+*	MSDN: [Signatures and overloading](https://msdn.microsoft.com/en-us/library/aa691131.aspx)
+*	StackOverflow: [What is an “internal slot” of an object in JavaScript?](http://stackoverflow.com/questions/33075262/what-is-an-internal-slot-of-an-object-in-javascript)
