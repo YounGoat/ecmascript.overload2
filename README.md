@@ -2,6 +2,8 @@
 
 __Elegant solution for function overloading in JavaScript.__
 
+[![Build Status](https://travis-ci.org/YounGoat/ecmascript.overload2.svg?branch=master)](https://travis-ci.org/YounGoat/ecmascript.overload2)
+
 ![NPM total downloads](https://img.shields.io/npm/dt/overload2.svg)
 ![NPM version](https://img.shields.io/npm/v/overload2.svg)
 ![NPM license](https://img.shields.io/npm/l/overload2.svg)
@@ -133,7 +135,7 @@ getDay(2000, 'Jan', 1);
 
 ###	Datatype Alias
 
-ATTENTION: Datatype aliases are __CaseSensitive__.
+ATTENTION: Datatype aliases are __CaseSensitive__ strings.
 
 | Alias      | Corresponding Datetype |
 | :--------- | :--------------------- |
