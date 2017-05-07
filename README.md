@@ -3,6 +3,7 @@
 __Elegant solution for function overloading in JavaScript.__
 
 [![Build Status](https://travis-ci.org/YounGoat/ecmascript.overload2.svg?branch=master)](https://travis-ci.org/YounGoat/ecmascript.overload2)
+[![Coverage Status](https://coveralls.io/repos/github/YounGoat/ecmascript.overload2/badge.svg?branch=master)](https://coveralls.io/github/YounGoat/ecmascript.overload2?branch=master)
 [![NPM total downloads](https://img.shields.io/npm/dt/overload2.svg)](https://www.npmjs.com/package/overload2)
 [![NPM version](https://img.shields.io/npm/v/overload2.svg)](https://www.npmjs.com/package/overload2)
 [![NPM license](https://img.shields.io/npm/l/overload2.svg)](./LICENSE.txt)
