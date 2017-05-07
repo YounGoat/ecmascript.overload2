@@ -5,7 +5,7 @@ var MODULE_REQUIRE
 	/* NPM */
 
 	/* in-package */
-	, overload2 = require('overload2')
+	, overload2 = require('../overload2')
 	;
 
 describe('Throw Errors On Defining', () => {
