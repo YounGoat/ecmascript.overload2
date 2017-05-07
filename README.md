@@ -3,12 +3,10 @@
 __Elegant solution for function overloading in JavaScript.__
 
 [![Build Status](https://travis-ci.org/YounGoat/ecmascript.overload2.svg?branch=master)](https://travis-ci.org/YounGoat/ecmascript.overload2)
-![NPM total downloads](https://img.shields.io/npm/dt/overload2.svg)
-![NPM version](https://img.shields.io/npm/v/overload2.svg)
-![NPM license](https://img.shields.io/npm/l/overload2.svg)
-![GitHub stars](https://img.shields.io/github/stars/YounGoat/ecmascript.overload2.svg?style=social&label=Star)
-
-[![NPM](https://nodei.co/npm/overload2.png?downloads=true&downloadRank=true&stars=true)](https://www.npmjs.com/package/overload2)
+[![NPM total downloads](https://img.shields.io/npm/dt/overload2.svg)](https://www.npmjs.com/package/overload2)
+[![NPM version](https://img.shields.io/npm/v/overload2.svg)](https://www.npmjs.com/package/overload2)
+[![NPM license](https://img.shields.io/npm/l/overload2.svg)](./LICENSE.txt)
+[![GitHub stars](https://img.shields.io/github/stars/YounGoat/ecmascript.overload2.svg?style=social&label=Star)](https://github.com/YounGoat/ecmascript.overload2/stargazers)
 
 When you are tired with writing tasteless code to do with arguments, *overload2* will __MAKE THINGS EASY__.
 
@@ -22,6 +20,7 @@ On programming with strongly-typed languages such as C++ and Java, [function ove
 *	[APIs](#apis)
 * 	[Examples](#examples)
 *	[Why overload2](#why-overload2)
+*	[About](#about)
 *	[References](#references)
 
 ##	Links
@@ -274,6 +273,20 @@ A Param is made up of  a Type and some decorators. Available decorators are:
 *	[Basic Usage](./example/basic.js)   
 	To create overloaded function in simple way.
 
+*	[Unit Test](./test/)  
+	Another way to understand *overload2* is via reading unit-test code. To run the unit test on the local installed module, please:
+
+	```bash
+	# Change to the installing directory of overload2.
+	cd node_modules/overload2
+
+	# To install devDependencies.
+	npm intall
+
+	# Run test.
+	npm test
+	```
+
 * 	[Overloaded Constructor Function](./example/constructor.js)   
 	Overloaded function created by *overload2* may also be used as class constructor.
 
@@ -295,6 +308,10 @@ There have been dozens of packages devoted to function overloading in JavaScript
 *	...
 
 So, is *overload2* redundant? I donnot know. Each of previous is unsatisfactory more or less, of course *overload2* is not perfect either. Maybe future ECMAScript specification will support function overloading. However, until then, I will depend on *overload2* while coding in JavaScript.
+
+##	About
+
+[![NPM](https://nodei.co/npm/overload2.png?downloads=true&downloadRank=true&stars=true)](https://www.npmjs.com/package/overload2)
 
 ##	References
 

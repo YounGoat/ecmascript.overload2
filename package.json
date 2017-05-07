@@ -4,7 +4,7 @@
 	"description": "Elegant solution for function overloading in JavaScript",
 	"main": "overload2.js",
 	"directories": {
-		"test": "test"
+		"test": "./node_modules/.bin/mocha"
 	},
 	"scripts": {
 		"prepublishOnly": "mkdir -p dist && cp overload2.js dist && cd dist && uglifyjs --mangle --output overload2.min.js --source-map overload2.map overload2.js",

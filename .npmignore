@@ -1,0 +1,4 @@
+.gitignore
+.istanbul.yml
+.travis.yml
+CHANGELOG.md
