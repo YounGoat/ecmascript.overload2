@@ -3,8 +3,8 @@
  * @author youngoat@163.com
  */
 
+/* eslint-disable no-shadow-restricted-names */
 (function(global, undefined) {
-
 	var MODULE_REQUIRE
 		/* built-in */
 		// NOTHING
@@ -34,8 +34,10 @@
 					this.message = message;
 				}
 
+				/* eslint-disable new-cap */
 				var err = new parent;
-				this.stack = [ this.name + ': ' + this.message ].concat( err.stack.split('\n').slice(2) ).join('\n');
+				/* eslint-enable new-cap */
+				this.stack = [ this.name + ': ' + this.message ].concat(err.stack.split('\n').slice(2)).join('\n');
 			};
 
 			Ex.prototype = Object.create(parent.prototype);
@@ -52,6 +54,7 @@
 		// 自定义错误。
 		// 因为 overload 带有强类型语言特征，故此我们在其使用过程中，对于输入参数采取了尽量严格的标准，在所有不合规或可疑的地方，均会抛出自定义错误，以避免歧义和隐患。
 		// 同时，我们在自定义错误的设计上也尽量遵循了准确和具有建设性的原则。
+		/* eslint-disable key-spacing, comma-style */
 		, ERR = {
 			Generic: declareException('Error'),
 
@@ -60,7 +63,7 @@
 			}),
 
 			Type: declareException('TypeError', TypeError, function(/*string*/ desc, /*string|Array*/ types, /*string*/ actual) {
-			 	this.message = desc + ' must be ' + ( typeof types == 'string' ? types : types.join(' | ') ) + ': ' + actual;
+				this.message = desc + ' must be ' + (typeof types == 'string' ? types : types.join(' | ')) + ': ' + actual;
 			}),
 
 			Range: declareException('RangeError', RangeError, function(/*string*/ desc, /*string|Array*/ info, /*string*/ actual) {
@@ -73,6 +76,7 @@
 			NotImplemented: declareException('EmptyException'),
 			Unmatching: declareException('UnmatchingException', TypeError)
 		}
+		/* eslint-enable key-spacing, comma-style */
 
 		/**
 		 * 创建对象生成器。
@@ -113,11 +117,123 @@
 		// Type() 构造函数参数确定，故毋须使用类似 ParamList.parse 这样的构建器。
 		if (!(this instanceof Type)) return new Type(matcher);
 
-		if (matcher instanceof RegExp)
-			this.match = function(value) { return matcher.test(value); }
-		else
+		if (matcher instanceof RegExp) {
+			this.match = function(value) {
+				return matcher.test(value);
+			};
+		}
+		else {
 			this.match = matcher;
+		}
 	}
+
+	// ---------------------------
+	// 预定义数据类型。
+
+	Type.ANY = new Type(function() {
+		return true;
+	});
+
+	Type.BOOLEAN = new Type(function(value) {
+		return typeof value === 'boolean';
+	});
+
+	Type.CHAR = new Type(function(value) {
+		return typeof value === 'string' && value.length == 1;
+	});
+
+	Type.NUMBER = new Type(function(value) {
+		return typeof value === 'number';
+	});
+
+	Type.PLAIN_OBJECT  = new Type(function(value) {
+		return typeof value === 'object' && value.constructor === Object;
+	});
+
+	Type.SCALAR = new Type(function(value) {
+		return [ 'boolean', 'number', 'string' ].indexOf(typeof value) >= 0;
+	});
+
+	Type.STRING = new Type(function(value) {
+		return typeof value === 'string';
+	});
+
+	// ---------------------------
+	// 自定义数据类型生成器。
+
+	/**
+	 * 创建枚举类型。
+	 */
+	Type.enum = function() {
+		var args = Array.from(arguments);
+		return new Type(function(value) {
+			return args.indexOf(value) >= 0;
+		});
+	};
+
+	// ---------------------------
+	// 有关类型的逻辑工具。
+
+	// 根据现有类型，创建新的复合类型。
+	Type.and = function() {
+		var types = Array.from(arguments).map(Type.parse);
+		return new Type(function(value) {
+			var matched = true;
+			for (var i = 0; i < types.length && matched; i++) {
+				matched = types[i].match(value);
+			}
+			return matched;
+		});
+	};
+
+	// 根据现有类型，创建新的复合类型。
+	Type.or = function() {
+		var types = Array.from(arguments).map(Type.parse);
+		return new Type(function(value) {
+			var matched = false;
+			for (var i = 0; i < types.length && !matched; i++) {
+				matched = types[i].match(value);
+			}
+			return matched;
+		});
+	};
+
+	// 取当前类型的补集。
+	Type.not = function(type) {
+		return new Type(function(value) {
+			return !type.match(value);
+		});
+	};
+
+	Type.parse = function(type) {
+		if (typeof type == 'string') {
+			var formalType = TYPE_ALIAS[type];
+			if (!formalType) {
+				throw new ERR.Range('type alias', Object.keys(TYPE_ALIAS), type);
+			}
+			type = formalType;
+		}
+
+		else if (type instanceof Type) {
+			// DO NOTHING.
+		}
+
+		// 如果数据类型是一个普通函数，则将其视为构造函数，并封装为 Type 对象。
+		else if (typeof type == 'function') {
+			type = (function(type) {
+				return new Type(function(value) {
+					return value instanceof type;
+				})
+			})(type);
+		}
+
+		// 如不匹配，则抛出异常。
+		else {
+			throw new ERR.Type('Param type', [ 'overload2.Type', 'string', 'Function' ], type);
+		}
+
+		return type;
+	};
 
 	/**
 	 * 参数类。
@@ -146,42 +262,19 @@
 			// 拆分后第一个字符串作为数据类型（别名，后面还会继续处理），其余作为修饰符。
 			decos = type.trim().split(/\s+/);
 			type = decos.shift();
-
-			var formalType = TYPE_ALIAS[type];
-			if (!formalType) {
-				throw new ERR.Range('type alias', Object.keys(TYPE_ALIAS), type);
-			}
-			type = formalType;
 		}
 
-		else if (type instanceof Type) {
-			// DO NOTHING.
-		}
-
-		// 如果数据类型是一个普通函数，则将其视为构造函数，并封装为 Type 对象。
-		else if (typeof type == 'function') {
-			type = (function(type) {
-				return new Type(function(value) {
-					return value instanceof type;
-				})
-			})(type);
-		}
-
-		// 如不匹配，则抛出异常。
-		else {
-			throw new ERR.Type('Param type', [ 'overload2.Type', 'string', 'Function' ], type);
-		}
-		this.type = type;
+		this.type = Type.parse(type);
 
 		// ---------------------------
 		// 处理修饰符。
 
-		var DECOS = ['NULL', 'UNDEFINED'];
+		var DECOS = ['NULL', 'UNDEFINED'], i;
 
-		for (var i = 1; i < arguments.length; i++) {
+		for (i = 1; i < arguments.length; i++) {
 			decos = decos.concat(arguments[i].trim().split(/\s+/));
 		}
-		for (var i = 0; i < decos.length; i++) {
+		for (i = 0; i < decos.length; i++) {
 			var rawDeco = decos[i];
 
 			// 修饰符不区分大小写。
@@ -399,27 +492,9 @@
 	// 多态函数生成器。
 
 	function Overloader() {
-
 		var overloaded = new OverloadedFunction();
 		var append = function(args) {
 			overloaded.overload.apply(overloaded, args);
-		};
-
-		// 保存多态实现。
-		// 注意：如果多态实现不合规，应当在定义时抛出异常，调用时不再进行合规校验。
-		var saveDEF = function(args, isDefault) {
-			var overloadInstance;
-			if (args[0] instanceof Overload) {
-				overloadInstance = args[0];
-			}
-			else {
-				overloadInstance = Overload.parse.apply(null, args);
-			}
-			overloaded.overload(overloadInstance);
-
-			if (isDefault) {
-				overloaded.defaultMethod = overloadInstance.method;
-			}
 		};
 
 		if (arguments.length) {
@@ -448,67 +523,40 @@
 
 	// ---------------------------
 	// 预定义数据类型。
+	// 为了向前兼容，保留 0.1.0 版本之前的预定义数据类型，但以后新增类型仅挂靠 Type 函数。
 
-	Overloader.ANY = new Type(function(value) {
-		return true;
-	});
-
-	Overloader.BOOLEAN = new Type(function(value) {
-		return typeof value == 'boolean';
-	});
-
-	Overloader.CHAR = new Type(function(value) {
-		return typeof value == 'string' && value.length == 1;
-	});
-
-	Overloader.NUMBER = new Type(function(value) {
-		return typeof value == 'number';
-	});
-
-	Overloader.SCALAR = new Type(function(value) {
-		return [ 'boolean', 'number', 'string' ].indexOf(typeof value) >= 0;
-	});
-
-	Overloader.STRING = new Type(function(value) {
-		return typeof value == 'string';
-	});
+	Overloader.ANY     = Type.ANY;
+	Overloader.BOOLEAN = Type.BOOLEAN;
+	Overloader.CHAR    = Type.CHAR;
+	Overloader.NUMBER  = Type.NUMBER;
+	Overloader.SCALAR  = Type.SCALAR;
+	Overloader.STRING  = Type.STRING;
 
 	// ---------------------------
 	// 自定义数据类型生成器。
+	// 为了向前兼容，保留 0.1.0 版本之前的数据类型生成工具，但以后新增工具仅挂靠 Type 函数。
 
-	/**
-	 * 创建枚举类型。
-	 */
-	Overloader.enum = function() {
-		var args = [];
-		for (var i = 0; i < arguments.length; i++) {
-			args.push(arguments[i]);
-		}
-
-		return new Type(function(value) {
-			return args.indexOf(value) >= 0;
-		});
-	};
+	Overloader.enum    = Type.enum;
 
 	// ---------------------------
 
-	Overloader.Type = Type;
-	Overloader.type = Type;
-	Overloader.parseType = Type;
+	Overloader.Type           = Type;
+	Overloader.type           = Type;
+	// Overloader.parseType      = Type;
 
-	Overloader.Param = Param;
-	Overloader.param = Param.parse;
-	Overloader.parseParam = Param.parse;
+	Overloader.Param          = Param;
+	Overloader.param          = Param.parse;
+	Overloader.parseParam     = Param.parse;
 
-	Overloader.ParamList = ParamList;
-	Overloader.paramList = ParamList.parse;
+	Overloader.ParamList      = ParamList;
+	Overloader.paramList      = ParamList.parse;
 	Overloader.parseParamList = ParamList.parse;
 
-	Overloader.Overload = Overload;
-	Overloader.overload = Overload.parse;
-	Overloader.parseOverload = Overload.parse;
+	Overloader.Overload       = Overload;
+	Overloader.overload       = Overload.parse;
+	Overloader.parseOverload  = Overload.parse;
 
-	Overloader.Function = OverloadedFunction;
+	Overloader.Function       = OverloadedFunction;
 	Overloader.createFunction = OverloadedFunction;
 
 	// 输出所有自定义异常。
@@ -520,16 +568,16 @@
 		}
 	}
 
-	var TYPE_ALIAS = {
-		  '*'        : Overloader.ANY
-		, 'any'      : Overloader.ANY
-		, 'boolean'  : Overloader.BOOLEAN
-		, 'char'     : Overloader.CHAR
-		, 'number'   : Overloader.NUMBER
-		, 'scalar'   : Overloader.SCALAR
-		, 'string'   : Overloader.STRING
-	};
-
+	var TYPE_ALIAS =
+		{ '*'        : Type.ANY
+		, 'any'      : Type.ANY
+		, 'boolean'  : Type.BOOLEAN
+		, 'char'     : Type.CHAR
+		, 'number'   : Type.NUMBER
+		, 'object'   : Type.PLAIN_OBJECT
+		, 'scalar'   : Type.SCALAR
+		, 'string'   : Type.STRING
+		};
 
 	// ---------------------------
 	// 模块输出
@@ -540,8 +588,8 @@
 	}
 
 	// RequireJS
-	else if (typeof define == 'function') {
-		define(function() {
+	else if (typeof global.define == 'function') {
+		global.define(function() {
 			return Overloader;
 		});
 	}

@@ -1,5 +1,4 @@
 #	overload2
-
 __Elegant solution for function overloading in JavaScript.__
 
 [![Build Status](https://travis-ci.org/YounGoat/ecmascript.overload2.svg?branch=master)](https://travis-ci.org/YounGoat/ecmascript.overload2)
@@ -21,6 +20,7 @@ On programming with strongly-typed languages such as C++ and Java, [function ove
 *	[APIs](#apis)
 * 	[Examples](#examples)
 *	[Why overload2](#why-overload2)
+*	[Honorable Dependents](#dependents)
 *	[About](#about)
 *	[References](#references)
 
@@ -87,7 +87,7 @@ According to *overload2* , there are different ways to define a datatype.
 
 ###	Constructor Function
 
-*overload2* can match any instance with its constructor function, e.g. ``[0,1]`` is matched with ``Array``. See another example:
+*overload2* can match any instance with its constructor function, e.g. `[0,1]` is matched with `Array`. See another example:
 
 ```javascript
 var getDay = overlaod2()
@@ -101,7 +101,7 @@ getDay(new String('2000-1-1'));  // bar() invoked
 
 ###	Customized Datatype
 
-You may create customized datatypes by ``new overload2.Type(fn)``, e.g.
+You may create customized datatypes by `new overload2.Type(fn)`, e.g.
 
 ```javascript
 // Create a Type object.
@@ -123,35 +123,51 @@ getDay(2000, 'Jan', 1);
 
 ###	Predefined Datatype
 
-| Predefined Data Type   | Remark |
-| :--------------------- | :------------- |
-| __overload2.ANY__      | Anything. |
-| __overload2.BOOLEAN__  | It must be ``true`` or ``false``, anything else including instance of ``Boolean`` is unmatched. |
-| __overload2.CHAR__     | A string whose length equals 1, e.g. "a" |
-| __overload2.NUMBER__   | A number, but NOT instance of ``Number``. |
-| __overload2.SCALAR__   | A number, string or boolean, but NOT instance of ``Number`, ``String`` or ``Boolean``. |
-| __overload2.STRING__   | A string, but NOT instance of ``String``. |
+| Predefined Data Type        | Remark |
+| :-------------------------- | :------------- |
+| __overload2.Type.ANY__      | Anything. |
+| __overload2.Type.BOOLEAN__  | It must be `true` or `false`, anything else including instance of `Boolean` is unmatched. |
+| __overload2.Type.CHAR__     | A string whose length equals 1, e.g. "a" |
+| __overload2.Type.NUMBER__   | A number, but NOT instance of `Number`. |
+| __overload2.Type.SCALAR__   | A number, string or boolean, but NOT instance of `Number`, `String` or `Boolean`. |
+| __overload2.Type.STRING__   | A string, but NOT instance of `String`. |
+
+ATTENTION:
+
+1.	Predefined datatypes named `Type.BOOLEAN`, `Type.NUMBER` and `Type.STRING` refers to primitive values with type of `boolean`, `number` and `string`, not their Object-wrapped forms. If Object-wrapped form required, just directly use constructor functions `Boolean`, `Number` and `String` as datatype, see [Datatypes: Constructor Function](#constructor-function).
+
+1.	Before version 0.1.0, predefined datatypes are appended directly to the `overload2` module. To avoid ambiguity in feture, predefined datatypes will be appended to `overload2.Type`. Although the old ones reserved, it's stronly suggested not to use `overload2.<PREDEFINED_TYPE_NAME>` any longer.
 
 ###	Datatype Alias
 
 ATTENTION: Datatype aliases are __CaseSensitive__ strings.
 
-| Alias      | Corresponding Datetype |
-| :--------- | :--------------------- |
-| *          | __overload2.ANY__      |
-| any        | __overload2.ANY__      |
-| boolean    | __overload2.BOOLEAN__  |
-| char       | __overload2.CHAR__     |
-| number     | __overload2.NUMBER__   |
-| scalar     | __overload2.SCALAR__   |
-| string     | __overload2.STRING__   |
+| Alias      | Corresponding Datetype          |
+| :--------- | :------------------------------ |
+| *          | __overload2.Type.ANY__          |
+| any        | __overload2.Type.ANY__          |
+| boolean    | __overload2.Type.BOOLEAN__      |
+| char       | __overload2.Type.CHAR__         |
+| number     | __overload2.Type.NUMBER__       |
+| object     | __overload2.Type.PLAIN_OBJECT__ |
+| scalar     | __overload2.Type.SCALAR__       |
+| string     | __overload2.Type.STRING__       |
 
 ###	Create Datatype With Factory Method
 
 *overload2* offers some factory methods to create frequently used datatypes, e.g. enum.
 
-*	__overload2.enum(item[, ...])__  
+*	__overload2.Type.enum(item [, ...])__  
 	Return an enumeration type.
+
+*	__overload2.Type.and(type1, type2 [, ...])__  
+	Create a compound type.
+
+*	__overload2.Type.or(type1, type2 [, ...])__  
+	Create a compound type.
+
+*	__overload2.Type.not(type)__  
+	Create a new type which is complementary to the origin type.
 
 ##	Move Forward
 <a name="move-forward"></a>
@@ -169,19 +185,27 @@ The usage of classes in *overload2* is explained in the next table:
 | __overload2.Param__              | to define a parameter |
 | __overload2.Type__               | wrapper of class (consturctor function), or to customise some datatype  |
 
-Instances of ``Type``, ``Param``, ``ParamList`` and ``Overload`` are able to be created independently and be re-used in creating instances of superior class(es).
+Instances of `Type`, `Param`, `ParamList` and `Overload` are able to be created independently and be re-used in creating instances of superior class(es).
 
 Here is an [example](./example/advanced.js) for advanced mode.
 
 ##	APIs
 <a name="apis"></a>
 
-###	Overloaded Function Instance
+*	[overload2()](#api-overload2)
+*	[class overload2.Type](#api-class-type)
+*	[class overload2.Param](#api-class-param)
+*	[class overload2.ParamList](#api-class-paramlist)
+*	[class overload2.Overload](#api-class-overload)
+*	[class overload2.OverloadedFunction](#api-class-overloadedfunction)
 
-``overload2`` itself is a function, when invoked, it will return an overloded function instance.
+###	overload2(), Create An Overloaded Function
+<a name="api-overload2"></a>
+
+`overload2` itself is a function, when invoked, it will return an overloded function instance.
 
 *	\<fn\> __overload2__()  
-	Create a new overloaded function. The function has no implementations before ``.overload()`` called.
+	Create a new overloaded function. The function has no implementations before `.overload()` called.
 
 *	\<fn\> __\<fn\>.overload__( [ \<datatype\>, ... ] function \<implementation\> )  
 	Append an overloading implementation to existing overloaded function.
@@ -189,17 +213,19 @@ Here is an [example](./example/advanced.js) for advanced mode.
 *	\<fn\> __\<fn\>.default__( function \<implementation\> )  
 	Set default implementation function for existing overloaded function.
 
-###	overload2.Type
+###	class overload2.Type
+<a name="api-class-type"></a>
 
-To define a datatype in context of *overload2*, there are different ways including ``overload2.Type``. And all other datatypes will be converted to instances of ``overload2.Type`` before being used.
+To define a datatype in context of *overload2*, there are different ways including `overload2.Type`. And all other datatypes will be converted to instances of `overload2.Type` before being used.
 
 *	new __overload2.Type__( function | RegExp \<matcher\> )  
-	Here ``matcher`` may be a function or RegExp object.
+	Here `matcher` may be a function or RegExp object.
 
 *	*private* boolean __\<type\>.match__( \<value\> )  
-	Return ``true`` if value matches the datatype, otherwise return ``false``.
+	Return `true` if value matches the datatype, otherwise return `false`.
 
-###	overload2.Param
+###	class overload2.Param
+<a name="api-class-param"></a>
 
 A Param is made up of  a Type and some decorators. Available decorators are:
 
@@ -209,49 +235,52 @@ A Param is made up of  a Type and some decorators. Available decorators are:
 | undefined    | If argument equals undefined (the place should be occupied), it matches the parameter. |
 
 *	new __overload2.Param__( string "\<alias\> \<decorator\> ..." )  
-	The ``alias`` should be one of alias listed in table [Datatype Alias](#datatype-alias).  
+	The `alias` should be one of alias listed in table [Datatype Alias](#datatype-alias).  
 
 *	new __overload2.Param__( Type | function | string \<datatype\>, string \<decorator(s)\> [ , string \<decorator(s)\> ] )  
-	Here ``datatype`` may be instance of ``Type``, or construtor function, or datatype alias.
+	Here `datatype` may be instance of `Type`, or construtor function, or datatype alias.
 
 * 	*private* boolean __\<param\>.satisfy__( \<value\> )  
 	To judge if the argument value satisfy the parameter.
 
 * 	Param __overload2.Param.parse__( ? )  
-	Arguments suitable for ``new Param()`` are also suitable for the ``Param.parse()``.
+	Arguments suitable for `new Param()` are also suitable for the `Param.parse()`.
 
-###	overload2.ParamList
+###	class overload2.ParamList
+<a name="api-class-paramlist"></a>
 
 *	new __overload2.ParamList__( [ Param | Array | String \<param\> [ , ... ]  ] )  
-	Here ``param`` may be an instance of ``Param``, or a string or an array which may used as argument(s) for ``new Param()``.
+	Here `param` may be an instance of `Param`, or a string or an array which may used as argument(s) for `new Param()`.
 
 * 	*private* boolean __\<paramList\>.satisfy__( Array | Arguments \<args\> )  
-	To check arguments with parameters, return ``true`` if matched or ``false`` if not.
+	To check arguments with parameters, return `true` if matched or `false` if not.
 
 * 	ParamList __overload2.ParamList.parse__( ? )  
-	Arguments suitable for ``new ParamList()`` are also suitable for the ``ParamList.parse()``.
+	Arguments suitable for `new ParamList()` are also suitable for the `ParamList.parse()`.
 
-###	overload2.Overload
+###	class overload2.Overload
+<a name="api-class-overload"></a>
 
 *	new __overload2.Overload__( number <argumentsNumber>, function \<implementation\> )  
-	Create an ``Overload`` instance by restricting the number of arguments.
+	Create an `Overload` instance by restricting the number of arguments.
 
 *	new __overload2.Overload__( ParamList, function \<implementation\> )  
-	Create an ``Overload`` instance bound to specified ``ParamList``.
+	Create an `Overload` instance bound to specified `ParamList`.
 
 *	new __overload2.Overload__( \<param\> [ , ... ] , function \<implementation\> )  
-	Create an ``Overload`` instance with optional definitions of ``Param``.
+	Create an `Overload` instance with optional definitions of `Param`.
 
 *	new __overload2.Overload__(function \<implementation\> )  
-	Create an ``Overload`` instance which will be invoked while arguments length equals 0.
+	Create an `Overload` instance which will be invoked while arguments length equals 0.
 
 *	Overload __overload2.Overload.parse__( ? )  
-	Arguments suitable for ``new Overload()`` are also suitable for the ``Overload.parse()``.
+	Arguments suitable for `new Overload()` are also suitable for the `Overload.parse()`.
 
-###	overload2.OverloadedFunction
+###	class overload2.OverloadedFunction
+<a name="api-class-overloadedfunction"></a>
 
 *	new __overload2.OverloadedFunction__()  
-	The instance of ``OverloadedFunction`` is a wrapper, not a function itself.
+	The instance of `OverloadedFunction` is a wrapper, not a function itself.
 
 *	__\<wrapper\>.exec__( ... )  
 	Run the overloaded function.
@@ -262,11 +291,11 @@ A Param is made up of  a Type and some decorators. Available decorators are:
 *	__\<wrapper\>.call__( \<scope\> [ , \<arg\> [ , ... ] ] )  
 	Run the overloaded function under specified scope, passing arguments one by one.
 
-* 	__\<wrapper\>.overload__( Overload \<overloadInstance\> )  
+* 	__\<wrapper\>.overload__( Overload \<overloadInstance\> [ , Boolean <setAsDefault> ] )  
 	Append an overloading implementation.
 
 *  	__\<wrapper\>.overload__( ? )  
-	Append an overloading implementation, arguments suitable for ``new Overload()`` are also suitable for the ``<wrapper>.overload()``.
+	Append an overloading implementation, arguments suitable for `new Overload()` are also suitable for the `<wrapper>.overload()`.
 
 ##	Examples
 <a name="examples"></a>
@@ -310,9 +339,16 @@ There have been dozens of packages devoted to function overloading in JavaScript
 
 So, is *overload2* redundant? I donnot know. Each of previous is unsatisfactory more or less, of course *overload2* is not perfect either. Maybe future ECMAScript specification will support function overloading. However, until then, I will depend on *overload2* while coding in JavaScript.
 
+##	Honorable Dependents
+<a name="dependents"></a>
+
+Welcome to be the first dependent of *overload2*!
+
 ##	About
 
 [![NPM](https://nodei.co/npm/overload2.png?downloads=true&downloadRank=true&stars=true)](https://www.npmjs.com/package/overload2)
+
+Why postfixed the package name with number 2? Since name "overload" has been occupied, inspired by well-known package "pm2" and "through2", I thought "overload2" is not bad. The most important reason why I choose "overload2" was because 2 /tu:/ is pronounced like tool /tu:l/.
 
 ##	References
 

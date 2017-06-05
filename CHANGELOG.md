@@ -2,6 +2,18 @@
 
 Notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning 2.0.0](http://semver.org/).
 
+##	[0.1.0] - 2017-06
+
+###	Functions Added
+
+*	__overload2.Type.and()__  
+*	__overload2.Type.or()__  
+*	__overload2.Type.not()__  
+
+###	Changed
+
+Predefined datatypes are moved from `overload2.*` to `overload2.Type.*`.
+
 ##	[0.0.5] - 2017-05
 
 No material changes, but TRAVIS-CI and COVERALLS integrated.

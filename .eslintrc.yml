@@ -1,0 +1,114 @@
+# vim: set tw=120 :
+# ---------------------------------------------------------------------------------------------------------------------
+# JavaScript ESLint Configuration
+# @author youngoat@163.com
+# Some of comments in this file are directly quoted from [ESLint](http://eslint.org/)
+# ---------------------------------------------------------------------------------------------------------------------
+
+parserOptions:
+    # 3, 5 (default), 6, 7, or 8
+    # 2015 (same as 6), 2016 (same as 7), or 2017 (same as 8)
+    ecmaVersion: 6
+
+    # set to "script" (default) or "module" if your code is in ECMAScript modules.
+    sourceType: script
+
+    ecmaFeatures:
+        # allow return statements in the global scope
+        globalReturn: false
+
+        # enable JSX
+        jsx: false
+
+        # enable support for the experimental object rest/spread properties (IMPORTANT: This is an experimental feature
+        # that may change significantly in the future. It’s recommended that you do not write rules relying on this
+        # functionality unless you are willing to incur maintenance cost when it changes.)
+        experimentalObjectRestSpread: false
+
+# [Espress](https://github.com/eslint/espree) is the default parser.
+# Other parsers compatible with ESLint are:
+# * [Esprima](https://www.npmjs.com/package/esprima)
+# * [Babel-ESLint](https://www.npmjs.com/package/babel-eslint)
+parser: espree
+
+# An environment defines global variables that are predefined.
+# Open next link for available environments:
+# http://eslint.org/docs/user-guide/configuring#specifying-environments
+#
+# To specify environments using a comment inside of your JavaScript file, use the following format:
+# /* eslint-env node, mocha */
+#
+# If you want to use an environment from a plugin, be sure to specify the plugin name in the plugins array and then use
+# the unprefixed plugin name, followed by a slash, followed by the environment name. For example:
+# ---
+# plugins:
+#   - example
+# env:
+#   example/custom: true
+env:
+    node: true
+
+# Set each global variable name equal to true to allow the variable to be overwritten or false to disallow overwriting.
+globals:
+
+# ESLint supports the use of third-party plugins. Before using the plugin you have to install it using npm.
+# To configure plugins inside of a configuration file, use the plugins key, which contains a list of plugin names. The
+# eslint-plugin- prefix can be omitted from the plugin name.
+plugins:
+    - standard
+    - promise
+
+# To change a rule setting, you must set the rule ID equal to one of these values:
+# . "off" or 0 - turn the rule off
+# . "warn" or 1 - turn the rule on as a warning (doesn’t affect exit code)
+# . "error" or 2 - turn the rule on as an error (exit code is 1 when triggered)
+#
+# ABOUT RULE OPTIONS
+# If a rule has additional options, you can specify them using array literal syntax
+#
+# ABOUT PLUGIN RULES
+# To configure a rule which is defined within a plugin you have to prefix the rule ID with the plugin name and a /.
+rules:
+    brace-style:
+        - error
+        - stroustrup
+    comma-style:
+        - error
+        - first
+    eqeqeq: off
+    indent: off
+    key-spacing:
+        - error
+        - align:
+            beforeColon: true
+            mode: minimum
+            on: colon
+    new-parens: off
+    no-tabs: off
+    no-unused-vars:
+        - error
+        - varsIgnorePattern: MODULE_REQUIRE
+    one-var: off
+    semi: off
+    spaced-comment: off
+    space-before-function-paren:
+        - error
+        - never
+
+# ESLint supports adding shared settings into configuration file. You can add settings object to ESLint configuration
+# file and it will be supplied to every rule that will be executed.
+settings:
+
+# Set configuration to be extended. The name may be:
+# . "eslint:<name>" which represent a configuration file released with eslint core, including:
+#   . eslint:all
+#   . eslint:recommended
+# . name of a shareable configuration package whose name is prefixed with eslint-config-*
+# . "plugin:<pluginName>/<configName>" which represent a configurtaion file released with a plugin
+# . pathname of a configuration file
+extends: standard
+
+# By default, ESLint will look for configuration files in all parent folders up to the root directory. This can be
+# useful if you want all of your projects to follow a certain convention, but can sometimes lead to unexpected results.
+# ESLint will stop looking in parent folders once it finds a configuration with "root": true.
+root: true
