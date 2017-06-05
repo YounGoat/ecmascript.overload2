@@ -1,6 +1,6 @@
 {
     "name": "overload2",
-    "version": "0.0.5",
+    "version": "0.1.0",
     "description": "Elegant solution for function overloading in JavaScript",
     "main": "overload2.js",
     "directories": {
@@ -16,7 +16,9 @@
     },
     "keywords": [
         "overload",
+        "overloading",
         "function-overloading",
+        "class-overloading",
         "constructor-overloading",
         "strongly-typed"
     ],

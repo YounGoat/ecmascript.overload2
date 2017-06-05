@@ -1,4 +1,6 @@
-.gitignore
-.istanbul.yml
-.travis.yml
+.*
 CHANGELOG.md
+resources
+
+# Added by YUPP, Mon Jun 05 2017 22:56:35 GMT+0800 (CST)
+yupp.json
