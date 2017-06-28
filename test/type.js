@@ -11,6 +11,18 @@ var MODULE_REQUIRE
 
 
 describe('Predefined datatypes', function() {
+	it('?', function() {
+		assert(Type.ANY.match(0));
+		assert(Type.ANY.match(1));
+		assert(Type.ANY.match(null));
+		assert(Type.ANY.match(undefined));
+		assert(Type.ANY.match(''));
+		assert(Type.ANY.match(true));
+		assert(Type.ANY.match(false));
+		assert(Type.ANY.match([]));
+		assert(Type.ANY.match({}));
+	});
+
 	it('ANY', function() {
 		assert(Type.ANY.match(0));
 		assert(Type.ANY.match(1));

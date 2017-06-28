@@ -1,13 +1,6 @@
 #	overload2
 __Elegant solution for function overloading in JavaScript.__
 
-[![Build Status](https://travis-ci.org/YounGoat/ecmascript.overload2.svg?branch=master)](https://travis-ci.org/YounGoat/ecmascript.overload2)
-[![Coverage Status](https://coveralls.io/repos/github/YounGoat/ecmascript.overload2/badge.svg?branch=master)](https://coveralls.io/github/YounGoat/ecmascript.overload2?branch=master)
-[![NPM total downloads](https://img.shields.io/npm/dt/overload2.svg)](https://www.npmjs.com/package/overload2)
-[![NPM version](https://img.shields.io/npm/v/overload2.svg)](https://www.npmjs.com/package/overload2)
-[![NPM license](https://img.shields.io/npm/l/overload2.svg)](./LICENSE.txt)
-[![GitHub stars](https://img.shields.io/github/stars/YounGoat/ecmascript.overload2.svg?style=social&label=Star)](https://github.com/YounGoat/ecmascript.overload2/stargazers)
-
 When you are tired with writing tasteless code to do with arguments, *overload2* will __MAKE THINGS EASY__.
 
 On programming with strongly-typed languages such as C++ and Java, [function overloading](https://en.wikipedia.org/wiki/Function_overloading) is frequently employed to make API more convenient to be used. As a weakly-typed language, JavaScript does not support function overloading. At the same time, fortunately, functions in JavaScript may be passed with any arguments that is why  *overload2* is feasible.
@@ -16,6 +9,7 @@ On programming with strongly-typed languages such as C++ and Java, [function ove
 
 *	[Get Started](#get-started)
 *	[Datatypes](#datatypes)
+*	[Mutable Parameter](#mutable)
 *	[Move Forward](#move-forward)
 *	[APIs](#apis)
 * 	[Examples](#examples)
@@ -29,8 +23,8 @@ On programming with strongly-typed languages such as C++ and Java, [function ove
 *	[CHANGE LOG](./CHANGELOG.md)
 *	[Homepage](https://github.com/YounGoat/ecmascript.overload2)
 
-##	Get Started
 <a name="get-started"></a>
+##	Get Started
 
 Install *overload2* firstly.
 
@@ -62,8 +56,17 @@ var getDay = overload2()
 		function quz(year, month, date) { return new Date(year, month - 1, date).getDay(); }
 	)
 	.overload(
-		4, // length of arguments
-		function four() { console.log('too many arguments'); }
+		2, // length of arguments
+		function md(month, date) {
+			var d = new Date;
+			return d.setMonth(month - 1), d.setDate(date), d.getDay();
+		}
+	)
+	.overload(
+		'*', Date, '*',
+		function select(some, d, others) {
+			return d.getDay();
+		}
 	)
 	;
 
@@ -76,14 +79,23 @@ getDay('2000-1-1');
 getDay(2000, 1, 1);
 // quz(year, month, date) invoked
 
-getDay(1, 2, 3, 4);
-// four() invoked
+getDay(12, 1);
+// md() invoked
+
+getDay('foo', 'bar', new Date, 'quz');
+// select() invoked
 ```
 
-##	Datatypes
 <a name="datatypes"></a>
+##	Datatypes
 
 According to *overload2* , there are different ways to define a datatype.
+
+*	[Constructor Function](#constructor-function)
+*	[Customized Datatype](#customized-datatype)
+*	[Predefined Datatype](#predefined-datatype)
+*	[Datatype Alias](#datatype-alias)
+*	[Create Datatype With Factory Method](#create-datatype-with-factory-method)
 
 ###	Constructor Function
 
@@ -144,7 +156,7 @@ ATTENTION: Datatype aliases are __CaseSensitive__ strings.
 
 | Alias      | Corresponding Datetype          |
 | :--------- | :------------------------------ |
-| *          | __overload2.Type.ANY__          |
+| ?          | __overload2.Type.ANY__          |
 | any        | __overload2.Type.ANY__          |
 | boolean    | __overload2.Type.BOOLEAN__      |
 | char       | __overload2.Type.CHAR__         |
@@ -169,8 +181,60 @@ ATTENTION: Datatype aliases are __CaseSensitive__ strings.
 *	__overload2.Type.not(type)__  
 	Create a new type which is complementary to the origin type.
 
-##	Move Forward
+<a name="mutable"></a>
+##	Mutable Parameter
+
+By appending size decorator, we can define mutable parameters. E.g.
+
+```javascript
+var add = overload2()
+	.overload('number *', function(numbers) {
+		var ret = 0;
+		numbers.forEach(function(number) { ret += number; })
+		return ret;
+	})
+	.overload('boolean {2,3}', function(bools) {
+		var ret = false;
+		for (var i = 0; !ret && i < bools.length; i++) {
+			ret = bools[i];
+		}
+		return ret;
+	})
+	.overload([ Date, '+' ], function(dates) {
+		var date = dates[0];
+		for (var i = 1; i < dates.length; i++) {
+			if (date < dates[i]) {
+				date = dates[i];
+			}
+		}
+		return date;
+	})
+	;
+```
+
+Size decorators look like [repetition in regular expression](http://www.regular-expressions.info/repeat.html). Here are some examples for overload param with size decorators:
+
+```javascript
+[ Date, '{2,}']  // takes at least 2 arguments which are instances of Date
+
+'number *'  // takes any number (including zero) of arguments of type number
+'*'         // takes any number (including zero) of arguments of any type
+'+'         // takes at least one argument
+'?'         // takes one argument
+'{2}'       // takes 2 arguments
+'{2,4}'     // takes 2 to 4 arguments
+'{2,}'      // takes at least 2 arguments
+'{,4{}'     // takes no more than 4 arguments
+
+// The braces may be omitted, so the following are also valid.
+'2'
+'2,4'
+'2,'
+',4'
+```
+
 <a name="move-forward"></a>
+##	Move Forward
 
 Beyond the basic use, *overload2* is also suitable with more complex and large-scale programs. See the class hierarchy shown below:  
 ![overload2 hierarchy](./docs/overload2.png)
@@ -189,8 +253,8 @@ Instances of `Type`, `Param`, `ParamList` and `Overload` are able to be created 
 
 Here is an [example](./example/advanced.js) for advanced mode.
 
-##	APIs
 <a name="apis"></a>
+##	APIs
 
 *	[overload2()](#api-overload2)
 *	[class overload2.Type](#api-class-type)
@@ -199,8 +263,8 @@ Here is an [example](./example/advanced.js) for advanced mode.
 *	[class overload2.Overload](#api-class-overload)
 *	[class overload2.OverloadedFunction](#api-class-overloadedfunction)
 
-###	overload2(), Create An Overloaded Function
 <a name="api-overload2"></a>
+###	overload2(), Create An Overloaded Function
 
 `overload2` itself is a function, when invoked, it will return an overloded function instance.
 
@@ -213,8 +277,8 @@ Here is an [example](./example/advanced.js) for advanced mode.
 *	\<fn\> __\<fn\>.default__( function \<implementation\> )  
 	Set default implementation function for existing overloaded function.
 
-###	class overload2.Type
 <a name="api-class-type"></a>
+###	class overload2.Type
 
 To define a datatype in context of *overload2*, there are different ways including `overload2.Type`. And all other datatypes will be converted to instances of `overload2.Type` before being used.
 
@@ -224,8 +288,8 @@ To define a datatype in context of *overload2*, there are different ways includi
 *	*private* boolean __\<type\>.match__( \<value\> )  
 	Return `true` if value matches the datatype, otherwise return `false`.
 
-###	class overload2.Param
 <a name="api-class-param"></a>
+###	class overload2.Param
 
 A Param is made up of  a Type and some decorators. Available decorators are:
 
@@ -246,8 +310,8 @@ A Param is made up of  a Type and some decorators. Available decorators are:
 * 	Param __overload2.Param.parse__( ? )  
 	Arguments suitable for `new Param()` are also suitable for the `Param.parse()`.
 
-###	class overload2.ParamList
 <a name="api-class-paramlist"></a>
+###	class overload2.ParamList
 
 *	new __overload2.ParamList__( [ Param | Array | String \<param\> [ , ... ]  ] )  
 	Here `param` may be an instance of `Param`, or a string or an array which may used as argument(s) for `new Param()`.
@@ -258,8 +322,8 @@ A Param is made up of  a Type and some decorators. Available decorators are:
 * 	ParamList __overload2.ParamList.parse__( ? )  
 	Arguments suitable for `new ParamList()` are also suitable for the `ParamList.parse()`.
 
-###	class overload2.Overload
 <a name="api-class-overload"></a>
+###	class overload2.Overload
 
 *	new __overload2.Overload__( number <argumentsNumber>, function \<implementation\> )  
 	Create an `Overload` instance by restricting the number of arguments.
@@ -276,8 +340,8 @@ A Param is made up of  a Type and some decorators. Available decorators are:
 *	Overload __overload2.Overload.parse__( ? )  
 	Arguments suitable for `new Overload()` are also suitable for the `Overload.parse()`.
 
-###	class overload2.OverloadedFunction
 <a name="api-class-overloadedfunction"></a>
+###	class overload2.OverloadedFunction
 
 *	new __overload2.OverloadedFunction__()  
 	The instance of `OverloadedFunction` is a wrapper, not a function itself.
@@ -297,8 +361,8 @@ A Param is made up of  a Type and some decorators. Available decorators are:
 *  	__\<wrapper\>.overload__( ? )  
 	Append an overloading implementation, arguments suitable for `new Overload()` are also suitable for the `<wrapper>.overload()`.
 
-##	Examples
 <a name="examples"></a>
+##	Examples
 
 *	[Basic Usage](./example/basic.js)   
 	To create overloaded function in simple way.
@@ -326,8 +390,8 @@ A Param is made up of  a Type and some decorators. Available decorators are:
 *	[Advanced Usage](./example/advanced.js)  
 	Use *overload2* in complex situations.
 
-##	Why overload2
 <a name="why-overload2"></a>
+##	Why overload2
 
 There have been dozens of packages devoted to function overloading in JavaScript, and some of them are really not bad, e.g.
 
@@ -339,8 +403,8 @@ There have been dozens of packages devoted to function overloading in JavaScript
 
 So, is *overload2* redundant? I donnot know. Each of previous is unsatisfactory more or less, of course *overload2* is not perfect either. Maybe future ECMAScript specification will support function overloading. However, until then, I will depend on *overload2* while coding in JavaScript.
 
-##	Honorable Dependents
 <a name="dependents"></a>
+##	Honorable Dependents
 
 Welcome to be the first dependent of *overload2*!
 

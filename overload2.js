@@ -1,6 +1,10 @@
 /**
  * 函数多态的中量级实现。
  * @author youngoat@163.com
+ *
+ * 注释中的术语表：
+ * * 参数 = 定义中的形式参数
+ * * 值组 = 多态函数调用时的实际参数表
  */
 
 /* eslint-disable no-shadow-restricted-names */
@@ -94,9 +98,27 @@
 			}
 		}
 
-		// 数据是否包含指定元素。
+		// 数组是否包含指定元素。
 		, has = function(arr, item) {
 			return arr.indexOf(item) >= 0;
+		}
+
+		// 数组中的每个元素是否均能通过指定函数的测试。
+		, eachMatch = function(arr, fn) {
+			var matched = true;
+			for (var i = 0; matched && i < arr.length; i++) {
+				matched = fn(arr[i], i);
+			}
+			return matched;
+		}
+
+		// 数组中任意元素通过指定函数的测试。
+		, onceMatch = function(arr, fn) {
+			var matched = false;
+			for (var i = 0; !matched && i < arr.length; i++) {
+				matched = fn(arr[i], i);
+			}
+			return matched;
 		}
 		;
 
@@ -178,11 +200,9 @@
 	Type.and = function() {
 		var types = Array.from(arguments).map(Type.parse);
 		return new Type(function(value) {
-			var matched = true;
-			for (var i = 0; i < types.length && matched; i++) {
-				matched = types[i].match(value);
-			}
-			return matched;
+			return eachMatch(types, function(type) {
+				return type.match(value);
+			});
 		});
 	};
 
@@ -190,11 +210,9 @@
 	Type.or = function() {
 		var types = Array.from(arguments).map(Type.parse);
 		return new Type(function(value) {
-			var matched = false;
-			for (var i = 0; i < types.length && !matched; i++) {
-				matched = types[i].match(value);
-			}
-			return matched;
+			return onceMatch(types, function(type) {
+				return type.match(value);
+			});
 		});
 	};
 
@@ -252,7 +270,69 @@
 			return arguments[0];
 		}
 
+		this.type = null;
+		this.minSize = 1;
+		this.maxSize = 1;
+		this.nil = false;
+		this.undef = false;
+
+		var setSize = (function(size) {
+			if (typeof size == 'string') {
+				// 清除所有空白字符。
+				size = size.replace(/\s/g, '');
+				if (size == '*' || size == '...') {
+					this.minSize = 0;
+					this.maxSize = Infinity;
+					return true;
+				}
+				if (size == '+') {
+					this.minSize = 1;
+					this.maxSize = Infinity;
+					return true;
+				}
+
+				// 区间形式。
+				if (/^\{.+\}$/.test(size)) {
+					size = size.slice(1, -1);
+				}
+				if (/^\d+$/.test(size)) {
+					this.minSize = this.maxSize = parseInt(size);
+					return true;
+				}
+				if (/^,(\d+)$/.test(size)) {
+					this.minSize = 0;
+					this.maxSize = parseInt(RegExp.$1);
+					return true;
+				}
+				if (/^(\d+),$/.test(size)) {
+					this.minSize = parseInt(RegExp.$1);
+					this.maxSize = Infinity;
+					return true;
+				}
+				if (/^(\d+),(\d+)$/.test(size)) {
+					this.minSize = parseInt(RegExp.$1);
+					this.maxSize = parseInt(RegExp.$2);
+					return true;
+				}
+				return false;
+			}
+
+			if (Number.isInteger(size) && size > 0) {
+				this.minSize = this.maxSize = size;
+				return true;
+			}
+
+			return false;
+		}).bind(this);
+
 		var type = arguments[0], decos = [];
+
+		// ---------------------------
+		// 处理特殊的参数占位符。
+		if (setSize(type)) {
+			this.type = Type.ANY;
+			return this;
+		}
 
 		// ---------------------------
 		// 处理数据类型。
@@ -272,12 +352,20 @@
 		var DECOS = ['NULL', 'UNDEFINED'], i;
 
 		for (i = 1; i < arguments.length; i++) {
-			decos = decos.concat(arguments[i].trim().split(/\s+/));
+			if (typeof arguments[i] == 'string') {
+				decos = decos.concat(arguments[i].trim().split(/\s+/));
+			}
+			else if (Number.isInteger(arguments[i])) {
+				decos.push(arguments[i]);
+			}
 		}
 		for (i = 0; i < decos.length; i++) {
 			var rawDeco = decos[i];
 
-			// 修饰符不区分大小写。
+			// 尝试作为量化修饰符应用。
+			if (setSize(rawDeco)) continue;
+
+			// 普通修饰符不区分大小写。
 			decos[i] = decos[i].toUpperCase();
 
 			// 如果修饰符不合法，须抛出异常。
@@ -289,15 +377,17 @@
 		// 为了避免可能的语法冲突，这些修饰符对应的属性名回避了 JavaScript 保留字。
 
 		// 参数是否可以为 null
-		this.nil = has(decos, 'null');
+		this.nil = has(decos, 'NULL');
 
 		// 参数是否可以为 undefined
-		this.undef = has(decos, 'undefined');
+		this.undef = has(decos, 'UNDEFINED');
 	}
 
 	Param.parse = generateCreator(Param);
 
-	// 判断值是否合乎参数限定。
+	/**
+	 * 判断值是否合乎参数限定。
+	 */
 	Param.prototype.satisfy = function(value) {
 		if (value === null && this.nil) return true;
 		if (value === undefined && this.undef) return true;
@@ -310,34 +400,161 @@
 	 */
 	function ParamList(/* type | Param() arguments , ... */) {
 		var params = [];
+		var minSize = 0;
+		var maxSize = 0;
 		for (var i = 0, args; i < arguments.length; i++) {
 			args = (arguments[i] instanceof Array) ? arguments[i] : [ arguments[i] ];
 			params[i] = Param.parse.apply(null, args);
+			minSize += params[i].minSize;
+			maxSize += params[i].maxSize;
 		}
 
-		this.length = params.length;
-		this.item = function(i) {
-			return params[i];
-		};
+		// 指定匹配值组的最小和最大长度。
+		this.minSize = minSize;
+		this.maxSize = maxSize;
+
+		this.params = params;
 	}
 
 	ParamList.parse = generateCreator(ParamList);
 
 	/**
-	 * 判断值组是否合乎参数值限定。
+	 * 判断值组是否合乎参数定义。
+	 * @deprecated
 	 */
 	ParamList.prototype.satisfy = function(args) {
 		// 参数表长度检查。
-		if (args.length != this.length) {
+		if (args.length != this.params.length) {
 			return false;
 		}
 
-		// 参数类型核对
-		var matched = true;
-		for (var i = 0; matched && i < this.length; i++) {
-			matched = this.item(i).satisfy(args[i]);
+		// 参数类型核对。
+		return eachMatch(this.params, function(param, index) {
+			return param.satisfy(args[index]);
+		});
+	}
+
+	/**
+	 * 尝试按参数定义解析值组。
+	 * @return false 匹配失败
+	 * @return Array 匹配成功，返回与定义一一对应的新值组（因为参数可能是可变长度的）
+	 */
+	ParamList.prototype.parse = function(args) {
+		// ---------------------------
+		// 检查值组的长度是否在参数列表定义的区间内。
+		if (args.length < this.minSize || this.maxSize < args.length) {
+			return null;
 		}
-		return matched;
+
+		// ---------------------------
+		// 若整个参数组非可变长，则适用简易匹配逻辑。
+		if (this.minSize == this.maxSize) {
+			var matched = eachMatch(this.params, function(param, index) {
+				return param.satisfy(args[index]);
+			});
+			return matched ? args : null;
+		}
+
+		// ---------------------------
+		// 否则，适用复杂匹配逻辑。
+
+		// 注意：此函数将被递归调用。
+		var matching = function(args, params) {
+			var newArgs = [];
+			var argCursor = 0, paramCursor = 0;
+			for (; argCursor < args.length; argCursor++) {
+
+				// 如果所有形式参数匹配成功之后，仍有多余的实参未参加匹配，则认为整个参数表匹配失败。
+				if (paramCursor >= params.length) {
+					return null;
+				}
+
+				// 当前参数。
+				var param = params[paramCursor];
+
+				// 当前实参。
+				var arg = args[argCursor];
+
+				// ---------------------------
+				// 如果形式参数对应单个实参（不包括多于 1 的定长），则按简易逻辑处理。
+				if (param.minSize == param.maxSize == 1) {
+					if (!param.satisfy(arg)) {
+						// 如果实参与形式参数不匹配，则终止后续匹配，整个参数表匹配失败。
+						return null;
+					}
+					else {
+						newArgs.push(arg);
+						paramCursor++;
+					}
+					continue;
+				}
+
+				// ---------------------------
+				// 否则，适用复杂逻辑。
+
+				// 如果剩余实参数量不足以匹配当前形式参数，则匹配失败。
+				if (args.length - argCursor < param.minSize) {
+					return null;
+				}
+
+				// 依次储存当前形式参数匹配的实参。
+				var paramArgs = [];
+
+				for (; argCursor < args.length && param.satisfy(args[argCursor]); argCursor++) {
+					paramArgs.push(args[argCursor]);
+				}
+
+				// 如当前形式参数匹配实参个数未达到最小值，则认为当前形式参数匹配失败，整个参数表匹配失败。
+				if (paramArgs.length < param.minSize) {
+					return null;
+				}
+
+				var restParams = params.slice(++paramCursor);
+				var restArgs = args.slice(argCursor);
+
+				// 抵达匹配边界时，若仅匹配了最小数量的实参，或者已是最后一个形式参数，则直接固定。
+				if (paramArgs.length == param.minSize || restParams.length == 0) {
+					newArgs.push(paramArgs);
+					argCursor--;
+				}
+
+				// 否则，须尝试让贤。
+				else {
+
+					// 步步让贤，直到让无可让。
+					do {
+						var restNewArgs = matching(restArgs, restParams);
+
+						// 剩余参数匹配成功，则拼接匹配结果，整个参数表匹配成功。
+						if (restNewArgs != null) {
+							newArgs.push(paramArgs);
+							return newArgs.concat(restNewArgs);
+						}
+						// 已无余量。
+						else if (paramArgs.length == 0) {
+							break;
+						}
+						else {
+							restArgs.unshift(paramArgs.pop());
+						}
+					} while (paramArgs.length >= param.minSize);
+					return null;
+				}
+			}
+
+			for (; newArgs.length < params.length; paramCursor++) {
+				if (params[paramCursor].minSize == 0) {
+					newArgs.push([]);
+				}
+				else {
+					return null;
+				}
+			}
+
+			return newArgs;
+		};
+
+		return matching(Array.from(args), this.params);
 	};
 
 	/**
@@ -361,11 +578,13 @@
 			throw new ERR.Generic('overloading implementation function missed');
 		}
 
-		if (typeof args[0] == 'number') {
-			if (args.length > 1) {
-				throw new ERR.Arguments(2, args.length + 1);
-			}
-			this.paramCount = args[0];
+		// 支持可变长度参数后，用于代表值组长度的数字，也可以用 Param 实例来表征。
+		// 在此我们仍保留 argLength，是出于提高性能的考虑。
+		if (typeof args[0] == 'number' && args.length == 1) {
+			// if (args.length > 1) {
+			// 	throw new ERR.Arguments(2, args.length + 1);
+			// }
+			this.argLength = args[0];
 		}
 		else if (args[0] instanceof ParamList) {
 			if (args.length > 1) {
@@ -385,13 +604,19 @@
 	 * @returns {Array} 返回数组表示执行成功，即该重载实现与实参匹配。数据作为返回值的容器，有且只有一个元素，该元素即为返回值。
 	 */
 	Overload.prototype.exec = function(scope, args) {
-		// 若指定了形参数量，而实参数量不符，则直接跳过。
-		if (typeof this.paramCount == 'number' && (args.length != this.paramCount)) {
-			return false;
+		// 对于每一个重载实现，值组长度和形参表是互斥的。
+		// 或者指定值组长度，或者指定形参表，而不是同时指定。
+
+		// 如指定值组长度，则仅判断长度。
+		if (typeof this.argLength == 'number') {
+			if (args.length != this.argLength) return false;
 		}
 
-		if (this.params && !this.params.satisfy(args)) {
-			return false;
+		// 否则，须尝试匹配值组与参数列表。
+		else {
+			// 尝试获取按形式参数列表重整后的值组。
+			args = this.params.parse(args);
+			if (!args) return false;
 		}
 
 		return [ this.method.apply(scope, args) ];
@@ -437,11 +662,17 @@
 		}
 
 		if (this._defaultMethod) {
-			return this.defaultMethod.apply(scope, args);
+			return this._defaultMethod.apply(scope, args);
 		}
 
 		// 表示没有任何重载形参与实参匹配。
-		throw new ERR.Unmatching('Unmatching arguments: ' + args);
+		var types = [];
+		for (var i = 0, type; i < args.length; i++) {
+			type = typeof args[i];
+			if (type === 'object') type = args[i].constructor.name;
+			types.push(type);
+		}
+		throw new ERR.Unmatching('Unmatching arguments: ' + types.join(', '));
 	};
 
 	/**
@@ -569,7 +800,7 @@
 	}
 
 	var TYPE_ALIAS =
-		{ '*'        : Type.ANY
+		{ '?'        : Type.ANY
 		, 'any'      : Type.ANY
 		, 'boolean'  : Type.BOOLEAN
 		, 'char'     : Type.CHAR

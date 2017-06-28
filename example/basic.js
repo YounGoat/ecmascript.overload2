@@ -33,6 +33,12 @@ var getDay = overload2()
 			return d.setMonth(month - 1), d.setDate(date), d.getDay();
 		}
 	)
+	.overload(
+		'*', Date, '*',
+		function select(some, d, others) {
+			return d.getDay();
+		}
+	)
 	;
 
 // date_instance(d) invoked
@@ -50,5 +56,8 @@ assert.equal(day, 6);
 // md(month, date) invoked
 var day = getDay(1, 1);
 assert(0 <= day && day <= 6);
+
+var day = getDay('a', 'b', new Date('2000-1-1'), 'c', 'd');
+assert.equal(day, 6);
 
 console.log('THIS LINE REACHED MEANS EVERYTHING IS OK.');

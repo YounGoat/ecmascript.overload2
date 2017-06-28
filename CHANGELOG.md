@@ -2,6 +2,35 @@
 
 Notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning 2.0.0](http://semver.org/).
 
+##	[0.2.0] - 2017-06, Mutable Param
+
+###	What's New?
+
+Since this section, programmers are allowed to use mutable param. E.g.
+```javascript
+overload2()
+	.overload('+', Function, function(/*Array*/ data, callback) {
+		// ...
+	})
+	.overload(Error, '*', function(err, /*Array*/ rest) {
+		// ...
+	})
+```
+
+For more details, see the testcase named [mutable.js](./test/mutable.js).
+
+__ATTENTION:__
+Before, `'*'` is alias of `overload2.Type.ANY`. And now, it is mapped to any number of arguments of any type.
+
+###	Fixed
+
+Next bugs have been fixed in this version:
+
+*	Failed to run the default method when no predefined paramlist matched.
+
+	In previous version, `TypeError: Cannot read property 'apply' of undefined` will be thrown when overload2 tries to execute the default method.
+
+
 ##	[0.1.0] - 2017-06
 
 ###	Functions Added
