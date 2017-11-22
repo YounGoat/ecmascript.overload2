@@ -2,6 +2,12 @@
 
 Notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning 2.0.0](http://semver.org/).
 
+##	[0.2.1] - 2017-09
+
+###	Fixed
+
+*	In the previous version, if argument is valued with null / undefined and param is not defined with NULL /  UNDEFINED, overload2 will conclude that the argument and the param are not matching, even if the param's datatype accepts null / undefined. It is really ambiguous and has been corrected in this version.
+
 ##	[0.2.0] - 2017-06, Mutable Param
 
 ###	What's New?

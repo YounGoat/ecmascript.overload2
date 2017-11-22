@@ -135,14 +135,15 @@ getDay(2000, 'Jan', 1);
 
 ###	Predefined Datatype
 
-| Predefined Data Type        | Remark |
-| :-------------------------- | :------------- |
-| __overload2.Type.ANY__      | Anything. |
-| __overload2.Type.BOOLEAN__  | It must be `true` or `false`, anything else including instance of `Boolean` is unmatched. |
-| __overload2.Type.CHAR__     | A string whose length equals 1, e.g. "a" |
-| __overload2.Type.NUMBER__   | A number, but NOT instance of `Number`. |
-| __overload2.Type.SCALAR__   | A number, string or boolean, but NOT instance of `Number`, `String` or `Boolean`. |
-| __overload2.Type.STRING__   | A string, but NOT instance of `String`. |
+| Predefined Data Type            | Remark |
+| :----------------------------   | :------------- |
+| __overload2.Type.ANY__          | Anything. |
+| __overload2.Type.BOOLEAN__      | It must be `true` or `false`, anything else including instance of `Boolean` is unmatched. |
+| __overload2.Type.CHAR__         | A string whose length equals 1, e.g. "a" |
+| __overload2.Type.NUMBER__       | A number, but NOT instance of `Number`. |
+| __overload2.Type.PLAIN_OBJECT__ | An object whose constructor is `Object` instead of anything else. |
+| __overload2.Type.SCALAR__       | A number, string or boolean, but NOT instance of `Number`, `String` or `Boolean`. |
+| __overload2.Type.STRING__       | A string, but NOT instance of `String`. |
 
 ATTENTION:
 

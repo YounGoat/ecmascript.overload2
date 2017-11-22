@@ -389,8 +389,11 @@
 	 * 判断值是否合乎参数限定。
 	 */
 	Param.prototype.satisfy = function(value) {
-		if (value === null && this.nil) return true;
-		if (value === undefined && this.undef) return true;
+		// if (value === null && this.nil) return true;
+		// if (value === undefined && this.undef) return true;
+		if (value === null) return this.nil;
+		if (value === undefined) return this.undef;
+
 		return this.type.match(value);
 	};
 
@@ -668,7 +671,7 @@
 		// 表示没有任何重载形参与实参匹配。
 		var types = [];
 		for (var i = 0, type; i < args.length; i++) {
-			type = typeof args[i];
+			type = (args[i] === null) ? 'null' : typeof args[i];
 			if (type === 'object') type = args[i].constructor.name;
 			types.push(type);
 		}
@@ -699,7 +702,6 @@
 				this._defaultMethod = overloadInstance.method;
 			}
 			if (arguments.length > 2) {
-				console.warn('redundant arguments found');
 			}
 		}
 		else {
@@ -714,7 +716,6 @@
 			throw new ERR.Generic('invalid default method');
 		}
 		if (arguments.length > 1) {
-			console.warn('redundant arguments found');
 		}
 		this._defaultMethod = method;
 	};

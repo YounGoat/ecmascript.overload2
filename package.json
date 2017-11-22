@@ -1,10 +1,10 @@
 {
     "name": "overload2",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "description": "Elegant solution for function overloading in JavaScript",
     "main": "overload2.js",
     "directories": {
-        "test": "./node_modules/.bin/mocha"
+        "test": "test"
     },
     "scripts": {
         "prepublishOnly": "mkdir -p dist && cp overload2.js dist && cd dist && uglifyjs --mangle --output overload2.min.js --source-map overload2.map overload2.js",
@@ -20,7 +20,9 @@
         "function-overloading",
         "class-overloading",
         "constructor-overloading",
-        "strongly-typed"
+        "strongly-typed",
+        "signatures",
+        "function-signatures"
     ],
     "author": "youngoat@163.com",
     "license": "MIT",
