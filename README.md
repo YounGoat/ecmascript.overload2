@@ -298,6 +298,7 @@ A Param is made up of  a Type and some decorators. Available decorators are:
 | :----------- | :------------- |
 | null         | If argument equals null, it matches the parameter. |
 | undefined    | If argument equals undefined (the place should be occupied), it matches the parameter. |
+| absent       | The argument may be absent (optional). See [example code](./example/optional.js) for more details. |
 
 *	new __overload2.Param__( string "\<alias\> \<decorator\> ..." )  
 	The `alias` should be one of alias listed in table [Datatype Alias](#datatype-alias).  
@@ -387,6 +388,15 @@ A Param is made up of  a Type and some decorators. Available decorators are:
 
 *	[Run Overloaded Function Under Specified Scope](./example/scope.js)  
 	A function created by *overload2* may also be invoked by `.apply()`, `.call()`, as normal functions do. And, it may also be bound to specified scope with `.bind()`.
+
+*	[Mutable Parameters](./example/mutable.js)  
+	Explain how to define mutable parameters.
+
+*	[Optional Parameters](./example/optional.js)  
+	Explain show how to indicate a param which may be absent (that means it is optional), and how to set the default value.
+
+*	[Parameter Decorators](./example/param-deco.js)  
+	Introduce available decorators used to define a more complex parameter.
 
 *	[Advanced Usage](./example/advanced.js)  
 	Use *overload2* in complex situations.

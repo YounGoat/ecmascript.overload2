@@ -123,6 +123,13 @@
 		;
 
 	/**
+	 * 自定义缺省值类。
+	 */
+	function Absent(value) {
+		this.value = value;
+	}
+
+	/**
 	 * 自定义数据类型类。
 	 * @param {function} matcher
 	 * @param {RegExp}   matcher
@@ -256,7 +263,7 @@
 	/**
 	 * 参数类。
 	 * 构造函数支持重载，可能的参数形式包括：
-	 *   "alias ...decorator"
+	 *   "<alias> ...<decorator>"
 	 *   type, ...decorator
 	 *   type, decorators
 	 * 其中 type 可以是 Type 对象、普通的构造函数或者类型别名，decorators 则代表由多个修饰符组成的字符串，以空格分隔。
@@ -275,6 +282,9 @@
 		this.maxSize = 1;
 		this.nil = false;
 		this.undef = false;
+		this.absent = false;
+		this.absentValue = undefined;
+		this.arrayed = false;
 
 		var setSize = (function(size) {
 			if (typeof size == 'string') {
@@ -283,11 +293,13 @@
 				if (size == '*' || size == '...') {
 					this.minSize = 0;
 					this.maxSize = Infinity;
+					this.arrayed = true;
 					return true;
 				}
 				if (size == '+') {
 					this.minSize = 1;
 					this.maxSize = Infinity;
+					this.arrayed = true;
 					return true;
 				}
 
@@ -297,21 +309,25 @@
 				}
 				if (/^\d+$/.test(size)) {
 					this.minSize = this.maxSize = parseInt(size);
+					this.arrayed = true;
 					return true;
 				}
 				if (/^,(\d+)$/.test(size)) {
 					this.minSize = 0;
 					this.maxSize = parseInt(RegExp.$1);
+					this.arrayed = true;
 					return true;
 				}
 				if (/^(\d+),$/.test(size)) {
 					this.minSize = parseInt(RegExp.$1);
 					this.maxSize = Infinity;
+					this.arrayed = true;
 					return true;
 				}
 				if (/^(\d+),(\d+)$/.test(size)) {
 					this.minSize = parseInt(RegExp.$1);
 					this.maxSize = parseInt(RegExp.$2);
+					this.arrayed = true;
 					return true;
 				}
 				return false;
@@ -319,6 +335,7 @@
 
 			if (Number.isInteger(size) && size > 0) {
 				this.minSize = this.maxSize = size;
+				this.arrayed = true;
 				return true;
 			}
 
@@ -349,7 +366,7 @@
 		// ---------------------------
 		// 处理修饰符。
 
-		var DECOS = ['NULL', 'UNDEFINED'], i;
+		var DECOS = ['NULL', 'UNDEFINED', 'ABSENT'], i;
 
 		for (i = 1; i < arguments.length; i++) {
 			if (typeof arguments[i] == 'string') {
@@ -358,12 +375,28 @@
 			else if (Number.isInteger(arguments[i])) {
 				decos.push(arguments[i]);
 			}
+
+			// @tag 20180222
+			else if (arguments[i] instanceof Absent) {
+				this.absent = true;
+				this.absentValue = arguments[i].value;
+			}
 		}
+		
 		for (i = 0; i < decos.length; i++) {
 			var rawDeco = decos[i];
 
 			// 尝试作为量化修饰符应用。
 			if (setSize(rawDeco)) continue;
+
+			// 设置缺省值。
+			// 注意：为避免歧义，缺省值字面量中不得出现空格。
+			// @tag 20180222
+			if (/^=(.+)$/.test(rawDeco)) {
+				this.absent = true;
+				this.absentValue = eval(RegExp.$1);
+				continue;
+			}
 
 			// 普通修饰符不区分大小写。
 			decos[i] = decos[i].toUpperCase();
@@ -381,6 +414,11 @@
 
 		// 参数是否可以为 undefined
 		this.undef = has(decos, 'UNDEFINED');
+
+		// 参数是否可以缺席。
+		if (!this.absent) {
+			this.absent = has(decos, 'ABSENT');
+		}
 	}
 
 	Param.parse = generateCreator(Param);
@@ -405,14 +443,21 @@
 		var params = [];
 		var minSize = 0;
 		var maxSize = 0;
+		var easy = true;
 		for (var i = 0, args; i < arguments.length; i++) {
 			args = (arguments[i] instanceof Array) ? arguments[i] : [ arguments[i] ];
 			params[i] = Param.parse.apply(null, args);
-			minSize += params[i].minSize;
 			maxSize += params[i].maxSize;
+
+			// @tag 20180222 
+			// 如果参数允许缺省，则在整个实参列表中占据的最小长度为 0。
+			minSize += params[i].absent ? 0 : params[i].minSize;
+
+			// 如果形参可缺省，或者为多占位或可变长度，则不适用简易模式。
+			easy = easy && !( params[i].absent || params[i].arrayed );
 		}
 
-		// 指定匹配值组的最小和最大长度。
+		this.easy = easy;
 		this.minSize = minSize;
 		this.maxSize = maxSize;
 
@@ -423,7 +468,7 @@
 
 	/**
 	 * 判断值组是否合乎参数定义。
-	 * @deprecated
+	 * @deprecated 为了支持可变长度参数，用更复杂的 .parse() 方法取代。
 	 */
 	ParamList.prototype.satisfy = function(args) {
 		// 参数表长度检查。
@@ -450,8 +495,8 @@
 		}
 
 		// ---------------------------
-		// 若整个参数组非可变长，则适用简易匹配逻辑。
-		if (this.minSize == this.maxSize) {
+		// 适用简易匹配逻辑。
+		if (this.easy) {
 			var matched = eachMatch(this.params, function(param, index) {
 				return param.satisfy(args[index]);
 			});
@@ -479,8 +524,8 @@
 				var arg = args[argCursor];
 
 				// ---------------------------
-				// 如果形式参数对应单个实参（不包括多于 1 的定长），则按简易逻辑处理。
-				if (param.minSize == param.maxSize == 1) {
+				// 如果形式参数对应单个实参且不可缺省，则按简易逻辑处理。
+				if (!param.absent && param.minSize == 1 && param.maxSize == 1) {
 					if (!param.satisfy(arg)) {
 						// 如果实参与形式参数不匹配，则终止后续匹配，整个参数表匹配失败。
 						return null;
@@ -495,58 +540,108 @@
 				// ---------------------------
 				// 否则，适用复杂逻辑。
 
-				// 如果剩余实参数量不足以匹配当前形式参数，则匹配失败。
+				// 如果剩余实参数量不足以匹配当前形式参数：
 				if (args.length - argCursor < param.minSize) {
+					// 若参数可缺省：
+					if (param.absent) {
+						// 使用缺省值替补。
+						newArgs.push(param.absentValue);
+
+						// 不消耗实参。
+						argCursor--;
+
+						// 当前形参匹配完毕。
+						continue;	
+					}
+					
+					// 否则当前形式参数匹配失败，整个参数表匹配失败。
 					return null;
 				}
 
 				// 依次储存当前形式参数匹配的实参。
 				var paramArgs = [];
+				var pushParamArg = function() {
+					if (param.arrayed) newArgs.push(paramArgs);
+					else newArgs.push(paramArgs[0]);
+				};
 
 				for (; argCursor < args.length && param.satisfy(args[argCursor]); argCursor++) {
 					paramArgs.push(args[argCursor]);
 				}
+				argCursor--;
+				paramCursor++;
 
-				// 如当前形式参数匹配实参个数未达到最小值，则认为当前形式参数匹配失败，整个参数表匹配失败。
+				// 如当前形式参数匹配实参个数未达到最小值：
 				if (paramArgs.length < param.minSize) {
+					// 若参数可缺省：
+					if (param.absent) {
+						// 使用缺省值替补。
+						newArgs.push(param.absentValue);
+
+						// 回吐所有已消耗的实参。
+						argCursor -= paramArgs.length;
+						
+						// 当前形参匹配完毕。
+						continue;
+					}
+					
+					// 否则当前形式参数匹配失败，整个参数表匹配失败。
 					return null;
 				}
 
-				var restParams = params.slice(++paramCursor);
-				var restArgs = args.slice(argCursor);
+				var restParams = params.slice(paramCursor);
 
-				// 抵达匹配边界时，若仅匹配了最小数量的实参，或者已是最后一个形式参数，则直接固定。
-				if (paramArgs.length == param.minSize || restParams.length == 0) {
-					newArgs.push(paramArgs);
-					argCursor--;
+				// 抵达匹配边界时，若
+				// 仅匹配了最小数量的实参且该参数不可缺省，或者已是最后一个形式参数，
+				// 则直接固定参数值。
+				if (!param.absent && paramArgs.length == param.minSize || restParams.length == 0) {
+					pushParamArg();
+					continue;
 				}
 
 				// 否则，须尝试让贤。
-				else {
+				var restArgs = args.slice(argCursor + 1);
 
-					// 步步让贤，直到让无可让。
-					do {
-						var restNewArgs = matching(restArgs, restParams);
+				// 步步让贤，直到让无可让。
+				do {
+					var restNewArgs = matching(restArgs, restParams);
 
-						// 剩余参数匹配成功，则拼接匹配结果，整个参数表匹配成功。
-						if (restNewArgs != null) {
-							newArgs.push(paramArgs);
-							return newArgs.concat(restNewArgs);
+					// 剩余参数匹配成功，则拼接匹配结果，整个参数表匹配成功。
+					if (restNewArgs != null) {
+						pushParamArg();
+						newArgs = newArgs.concat(restNewArgs);
+						break;
+					}
+					
+					// 如果已让无可让：
+					if (paramArgs.length == param.minSize) {
+						// 如果参数可以缺省，统统不要了，全给后续形参去。
+						if (param.absent) {
+							restArgs = paramArgs.concat(restArgs);
+							paramArgs = param.absentValue;
+							continue;
 						}
-						// 已无余量。
-						else if (paramArgs.length == 0) {
-							break;
-						}
-						else {
-							restArgs.unshift(paramArgs.pop());
-						}
-					} while (paramArgs.length >= param.minSize);
-					return null;
-				}
+
+						// 否则，就此罢了（liao）。
+						newArgs = null;
+						break;
+					}
+					else {
+						restArgs.unshift(paramArgs.pop());
+					}
+
+				} while (true);
+
+				// 行进至此，不成功，则成仁。
+				return newArgs;
 			}
 
+			// 此时，所有实参均已消耗完毕。
 			for (; newArgs.length < params.length; paramCursor++) {
-				if (params[paramCursor].minSize == 0) {
+				if (params[paramCursor].absent) {
+					newArgs.push(params[paramCursor].absentValue);
+				}
+				else if (params[paramCursor].minSize == 0) {
 					newArgs.push([]);
 				}
 				else {
@@ -790,6 +885,8 @@
 
 	Overloader.Function       = OverloadedFunction;
 	Overloader.createFunction = OverloadedFunction;
+
+	Overloader.absent         = function(value) { return new Absent(value); };
 
 	// 输出所有自定义异常。
 	for (var name in ERR) {

@@ -36,8 +36,8 @@ describe('Mutable param *', function() {
 	it('ends with *', function() {
 		DE([ 1, [ number, string ] ], fn(number, string));
 		DE([ 2, [ number, [] ] ], fn(number));
-		DE([ 2, [ number, [number] ] ], fn(number, number));
-		DE([ 2, [ number, [string,number] ] ], fn(number, string, number));
+		// DE([ 2, [ number, [number] ] ], fn(number, number));
+		// DE([ 2, [ number, [string,number] ] ], fn(number, string, number));
 	});
 
 	it('starts with *', function() {
@@ -219,5 +219,24 @@ describe('Mutable param NUMBER (RegExp style)', function() {
 		} catch (ex) {
 			assert(ex instanceof overload2.UnmatchingException);
 		}
+	});
+});
+
+describe('Regurgitation', function() {
+	it('regurgitation', function() {
+		var fn = overload2()
+			.overload('number +', 'number 2', function(a, b) {
+				return a.length;
+			})
+			.overload('number +', function(a) {
+				return a.length;
+			})
+			;
+			
+		assert.equal(1, fn(1));
+		assert.equal(2, fn(1, 2));
+		assert.equal(1, fn(1, 2, 3));
+		assert.equal(2, fn(1, 2, 3, 4));
+		assert.equal(3, fn(1, 2, 3, 4, 5));
 	});
 });

@@ -3,3 +3,6 @@
 node_modules
 
 dist
+
+# Added by YUPP, Fri Feb 23 2018 01:24:27 GMT+0800 (CST)
+package-lock.json

@@ -2,6 +2,16 @@
 
 Notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning 2.0.0](http://semver.org/).
 
+##	[0.3.0] - Feb 23th, 2018, RISKY
+
+###	New
+
+*	Optional parameter avaiable.
+
+###	Fixed
+
+*	Bugs hiding in mutable parameters.
+
 ##	[0.2.1] - Nov, 2017
 
 ###	Fixed
