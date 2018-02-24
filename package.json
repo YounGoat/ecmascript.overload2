@@ -7,7 +7,7 @@
         "test": "test"
     },
     "scripts": {
-        "prepublishOnly": "mkdir -p dist && cp overload2.js dist && cd dist && uglifyjs --mangle --output overload2.min.js --source-map overload2.map overload2.js",
+        "prepublishOnly": "mkdir -p dist && cp overload2.js dist && cd dist && uglifyjs --mangle --output overload2.min.js --source-map filename=overload2.map overload2.js",
         "test": "./node_modules/.bin/mocha"
     },
     "repository": {
