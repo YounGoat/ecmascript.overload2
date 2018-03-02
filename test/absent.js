@@ -15,6 +15,9 @@ var string = 'foo';
 var date = new Date();
 var obj = {};
 
+function Foo() {};
+var foo = new Foo();
+
 describe('Param absent', function() {
 	var fn = overload2()
 		.overload('number', 'string ABSENT', function(number, string) {
@@ -34,6 +37,10 @@ describe('Param absent', function() {
 		})
 		.overload('object', 'number + ABSENT', [ Date, overload2.absent(date) ], 'boolean', function(obj, numbers, date, bool) {
 			return [ 6, Array.from(arguments) ];
+		})
+		
+		.overload(Foo, '? =null', 'number', function(foo, strings, number) {
+			return [ 7, Array.from(arguments) ];
 		})
 		;
 
@@ -61,5 +68,15 @@ describe('Param absent', function() {
 		DE([ 6, [ obj, [number], date, bool ] ], fn(obj, number, date, bool));
 		DE([ 6, [ obj, [number, number, number], date, bool ] ], fn(obj, number, number, number, bool));
 		DE([ 6, [ obj, undefined, date, bool ] ], fn(obj, bool));
+	});
+
+	it('bugs fixed on 20180302', function() {
+		try {
+			fn(foo, string, string);
+		} catch(ex) {
+			assert(ex instanceof overload2.UnmatchingException);
+		}
+
+		DE([ 7, [ foo, null, number ] ], fn(foo, number));
 	});
 });

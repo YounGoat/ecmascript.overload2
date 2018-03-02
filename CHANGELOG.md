@@ -2,6 +2,12 @@
 
 Notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning 2.0.0](http://semver.org/).
 
+##	[0.3.1] - Mar 2nd, 2018
+
+*	Fixed 2 bugs on processing optional parameters, absent value may be regarded as arguments and taken to match the following parameters.  
+	这个问题出现在可选参数的“让贤匹配”过程中，由于缺省值上位后未及时终止匹配，导致缺省值被当作实参继续“让贤匹配”流程，最终结果变得不可预测。  
+	上一个版本标注为 RISKY 真是一语成谶！
+
 ##	[0.3.0] - Feb 23th, 2018, RISKY
 
 ###	New

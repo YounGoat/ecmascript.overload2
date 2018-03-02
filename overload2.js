@@ -562,6 +562,9 @@
 				var paramArgs = [];
 				var pushParamArg = function() {
 					if (param.arrayed) newArgs.push(paramArgs);
+
+					// 此时，paramArgs.length == 1
+					// @tag 20180302b
 					else newArgs.push(paramArgs[0]);
 				};
 
@@ -589,10 +592,11 @@
 					return null;
 				}
 
-				var restParams = params.slice(paramCursor);
+				// 剩余形参数组，该数组在后续的让贤匹配中是不变的。
+				/*const*/ var restParams = params.slice(paramCursor);
 
 				// 抵达匹配边界时，若
-				// 仅匹配了最小数量的实参且该参数不可缺省，或者已是最后一个形式参数，
+				// 仅匹配了最小数量的实参且该参数不可缺省，或者已是最后一个形式参数（既所有形式参数均已匹配），
 				// 则直接固定参数值。
 				if (!param.absent && paramArgs.length == param.minSize || restParams.length == 0) {
 					pushParamArg();
@@ -600,7 +604,16 @@
 				}
 
 				// 否则，须尝试让贤。
+				// 让贤的策略是：
+				//   将剩余实参与剩余形参匹配（递归调用）。
+				//   如匹配不成功，则出让一个当前形参匹配的实参，列为剩余实参之首，再次尝试匹配。
+				//   直至，无法出让，或匹配成功。
+				// 剩余实参数组，该数组在后续的让贤匹配中是递增的。
 				var restArgs = args.slice(argCursor + 1);
+
+				// @tag 20180302a
+				// @fixbug
+				var lasttime = false;
 
 				// 步步让贤，直到让无可让。
 				do {
@@ -612,13 +625,27 @@
 						newArgs = newArgs.concat(restNewArgs);
 						break;
 					}
+
+					// 已是最后一次尝试（当前形参已出让所有实参）。
+					// @tag 20180302a
+					if (lasttime) {
+						// 就此罢了（liao）。
+						newArgs = null;
+						break;
+					}
 					
 					// 如果已让无可让：
 					if (paramArgs.length == param.minSize) {
 						// 如果参数可以缺省，统统不要了，全给后续形参去。
 						if (param.absent) {
 							restArgs = paramArgs.concat(restArgs);
-							paramArgs = param.absentValue;
+							
+							// paramArgs = param.absentValue;
+							// @tag 20180302b
+							paramArgs = param.arrayed ? param.absentValue : [ param.absentValue ];
+
+							// @tag 20180302a
+							lasttime = true;
 							continue;
 						}
 
