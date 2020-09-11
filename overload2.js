@@ -296,6 +296,10 @@
 					this.arrayed = true;
 					return true;
 				}
+				if (size == '?') {
+					this.absent = true;
+					return true;
+				}
 				if (size == '+') {
 					this.minSize = 1;
 					this.maxSize = Infinity;
@@ -360,7 +364,7 @@
 			decos = type.trim().split(/\s+/);
 			type = decos.shift();
 		}
-
+		
 		this.type = Type.parse(type);
 
 		// ---------------------------

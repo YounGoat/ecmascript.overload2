@@ -2,6 +2,10 @@
 
 Notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning 2.0.0](http://semver.org/).
 
+##	[0.3.2] - Sep 11th, 2020
+
+*	支持数量符号 `?`。
+
 ##	[0.3.1] - Mar 2nd, 2018
 
 *	Fixed 2 bugs on processing optional parameters, absent value may be regarded as arguments and taken to match the following parameters.  
